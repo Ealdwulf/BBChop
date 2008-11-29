@@ -1,0 +1,54 @@
+
+
+The behaviour of the algorithm is parameterised by 
+
+N   	      - number of locations
+loc 	      - location of target
+r 	      - failure rate, r_i, failure rate at each location
+	      	reduce to r_I at location and common r_i after location
+cert 	      - 'certainty' = minimum probability of most likely location required before termination
+likelihood    - likelihood function
+locPrior      - prior belief on locations
+counts	      - a priori information. 
+	      	reduce to counts at last location.
+
+
+We are interested in:
+
+t             - time per step
+S 	      - (expected) number of steps before termination
+p 	      - probability of finding correct answer
+
+
+Graphs to produce:
+
+
+ranges: 
+	variable	range
+
+	N		{10,20,50,100,200,500,1000}	
+	likelihood	{singleRate,multiRate}
+	cert		{0.7,0.8,0.9}
+	r		{0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9}
+	r_i		
+	    r_loc	{0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9}
+	    r_other	{0.1,0.5,0.9}
+	counts		{(0,0),(1,9)}
+
+1) N vs t for varying N,likelihood
+  - done for likelihood=singlerate, multirate should be linear too
+2) N vs S for varying N, cert,likelihood
+3) r vs S for varying r, cert,likelihood
+4) r vs p for varying r, cert,likelihood,counts
+5) r_i vs p for varying r_i, cert,likelihood
+
+6) loc vs p for varying loc,cert,likelihoods,counts
+
+
+
+1) N <-range(50,1000,50) , t
+
+2) N <-range(50,1000,50) cert <-[0.7,0.8,0.9], r <-range(0.9,0,-0.1) ,likelihood <- singleRate
+
+3,4) N <-101, r <-range(0.9,0,-0.1),  lastcount <-[(0,0),(5,1),(10,1),(0,5),(0,10)],  likelihood <-[singlerate,multiRate], 
+

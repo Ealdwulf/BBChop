@@ -1,0 +1,113 @@
+import copy
+import entropy
+import numbers
+import dag
+from miscMath import powList
+from likelihoods import Impossible
+# compute the probability distribution of bug locations
+
+# inputs:
+#         counts (list[N] of tuples (ti,di))
+#         locPrior (list[k<N] of prior probabilities that the bug occurs at locations k..(N-1)
+#
+# output list[k<N] of probabilities
+
+debug=False
+
+
+def entropies(counts,locPrior,likelihoodsObj,dag):
+    (locProbs,evProb)=likelihoodsObj.probs(counts,locPrior,dag)
+    deb_ef=[]
+    deb_enf=[]
+    findProbs=[]
+    entropyResults=[]
+    entropyFunc=entropy.renyi
+    currEntropy=entropyFunc(locProbs)
+
+    if debug: print "ac",counts
+
+    for i in range(len(locProbs)):
+        testFound=copy.copy(counts)
+        testNotFound=copy.copy(counts)
+        
+        (t,d)=counts[i]
+        testFound[i]=(t,d+1)
+        testNotFound[i]=(t+1,d)
+        
+        try:
+            (probsIfFound,evDProb)=likelihoodsObj.probs(testFound,locPrior,dag)
+            eFound=entropyFunc(probsIfFound)
+        except Impossible:
+            eFound=0.0
+            evDProb=0.0
+        
+        try:
+            (probsIfNotFound,junk)=likelihoodsObj.probs(testNotFound,locPrior,dag)
+            eNotFound=entropyFunc(probsIfNotFound)
+        except Impossible:
+            eNotFound=0.0
+        
+        # probability of finding at i:
+        
+        findProb=float(evDProb/evProb)
+        findProbs.append(findProb)
+        if debug: print "a",eFound,eNotFound,evDProb,probsIfFound
+        
+        # expected entropy after testing at i:
+        
+        eResult=eFound*findProb+eNotFound*(1-findProb)
+        
+        entropyResults.append(eResult)
+
+    return (currEntropy,entropyResults,findProbs)
+
+
+
+def entropiesFast(counts,locPrior,likelihoodsObj,d):
+
+#    d=dag.linearTestDag(len(locPrior))
+
+    renyiFactor=1.0/(1.0-entropy.alpha)
+
+    lk=likelihoodsObj.calc(counts,locPrior,entropy.alpha,d)
+
+    (rsum,osum)=lk.orig()
+    currEntropy=rsum/numbers.pow(osum,entropy.alpha)
+    currEntropy =numbers.log(currEntropy)*renyiFactor
+    
+    entropyResults=[]
+    findProbs=[]
+
+
+    for i in range(len(locPrior)): 
+
+        (findProb,renyLksFoundTot,renyLksNFoundTot,evDProb,NfoundNorm)=lk[i]
+        findProbs.append(findProb)
+        #entropyFound:normalise
+        try: 
+            eFound=renyLksFoundTot/numbers.pow(evDProb,entropy.alpha)
+            
+            eFound=numbers.log(eFound)*renyiFactor
+        except ZeroDivisionError:
+            eFound=0
+        except OverflowError:
+            eFound=0
+
+
+        #entropyNotFound:normalise
+        try:
+            eNotFound=renyLksNFoundTot/numbers.pow(NfoundNorm,entropy.alpha)            
+            eNotFound=numbers.log(eNotFound)*renyiFactor
+        except ZeroDivisionError:
+            eNotFound=0
+        except OverflowError:
+            eNotFound=0
+
+        # expected entropy after testing at i:
+        if debug: print "b",eFound,eNotFound,findProb
+        
+        eResult=eFound*findProb+eNotFound*(1-findProb)
+        
+        entropyResults.append(eResult)
+
+    return (currEntropy,entropyResults,findProbs)

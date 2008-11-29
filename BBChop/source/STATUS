@@ -1,0 +1,112 @@
+
+Robustness (my estimate of):
+
+Well tested:
+  dag.py
+  evidence.py
+  likelihood.py
+
+Only casual testing so far:
+  bbchop       - ie, the main driver program. 
+  testLog.py
+  listUtils.py (although it's well exercized by the testing of the math modules)
+  
+Doesn't need much testing:
+  entropy.py   - Derived from standard references
+  miscMath.py  - Derived from standard references, except test-only functions 
+  numbers.py   - is a simple wrapper
+
+
+
+Questions:
+
+- curiously, multirate gives poor results when tested with a singlerate simulation, whereas one
+  might expect it to be more conservative. I think this is another case where expecting a bayesian method to 
+  be 'conservative' is a mistake: you must give it the *right* prior; there is no 'more conservative'
+  prior.
+
+- precision 
+
+Due to the calculation of proabbilities by normalising likelihoods, we have to use high precision
+math (mpmath) to avoid divide by zero when numbers get too small for 'doubles'.
+I have still seen suspicious behavior at N=1000; should really find out what precision is required
+(setting in numbers.py is a guess).
+
+
+- cost
+
+What is the actual search cost (in looks) for different N and different fault
+locs? Suspect it gets worse when loc is near the end.
+
+
+- testing. Is there a better way to test? Can we test probs() directly?
+
+Could use importance sampling to vary the calculation an bit.
+
+
+
+TODO:
+
+
+
+- finish paper.
+
+- for paper: compare agains naive strategy of binary chop with N obs at each location: plot
+  graph of obs vs P(correct answer) for various N with naive method, and for various C with 
+  entropy method.
+
+
+- reduce dag.py from 0(N^2) to O(N) in more cases (in particular, when the dag contains both 
+ dominating and antidominating nodes, which will usually be the case)
+
+ - Driver program:
+   - add parsing of dag
+
+- produce distribution graphs for greedyStrat and nearlyGreedyStrat
+
+- abstract out termination condition?
+  - termination by utility?
+- test for 'skipping'
+
+- maybe use http://www.cs.berkeley.edu/~fateman/papers/factorial.pdf
+
+
+
+Done:
+   - logging and restarting from log
+   - add option to read in priors
+   - add option to call script to switch even when decisions are manual
+   - added support for strategies. Implemented 'nearlyGreedy' strategy.
+   - add likelihood function for deterministic tests.
+   - add option to read 'version numbers' from a file, and display then instead of location numbers
+   - test support for generalised history (DAG)
+
+
+O(N) version of Entropies() using renyi entropy.
+
+
+---
+
+
+ Probability calculation: there is a question over whether to include choice(n,k) in
+the equation for 'g'. 
+
+Decided to leave it out, on the grounds that we expect to know the order. It
+makes no difference unless you detect at the same point more than once, anyway.
+
+
+--
+
+ search strategy.
+
+There was a fixme in entropies() regarding a -1. decide whether it it cleaner to
+have this in or out. [decided to leave it out]
+
+The issue is whether we want to define the last location as being one which we
+already know to have the fault, or not. Not, means we can't initially observe
+the known-faulty location in order to improve out knowlege of R, if this is a good
+long term strategy. 
+
+
+
+

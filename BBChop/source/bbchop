@@ -1,0 +1,310 @@
+#!/usr/bin/env python
+from BBChop import BBChop
+import sys
+import getopt
+import likelihoods
+import os
+import dag
+import testLog
+
+options = "c:d:g:i:k:l:n:p:rs:t:"
+options_long  = [
+    "certainty=",
+    "distprior=",
+    "log",
+    "identifiers=",
+    "likelihood=",
+    "locations=",
+    "negatives=",
+    "positives=",
+    "resume",
+    "switchscript",
+    "testscript=",
+]
+
+def usage():
+    print """
+bbchop is a binary search program that works in the presense of false negatives. 
+
+bbchop -l <locations> -c <certainty> [-t <test script>] [-p <positives] [-n negatives] [-k xxx]
+
+
+     -l or --locations <locations>       : number of locations. If this option is used, location identifiers are
+                                           numbers in [0..N)
+     -g or --log <file>                  : log test results to file
+     -i or --identifiers <file>          : a file containing a list of location identifiers, one per line.
+
+
+
+     -c or --certainty <certainty>       : terminate if probability of most likely location 
+                                           is at least this value.
+
+     -t or --testscript <test script>    : script to call to test a location. it is passed the location
+                                           identifier as its first argument. It should return 0 for a detection,
+                                           125 if the location is invalid, or and other value in 1..127 for
+                                           a nondetection
+     -s or --switchscript <script>:      : script to call to switch from one location to another. May be used with
+                                           or without testscript. Hook for integration with version control systems.
+
+
+                                         : If no test script is specified, questions are asked via stdio.
+     
+     -p or --positives <positives>       : number of detections seen at the last location (integer,default 0)
+     -n or --negatives <negatives>       : number of non-detecting observations made
+                                         : at the last location (integer, default 0)
+     -k or --likelihood <func>           : likelihood function, currently singlerate,multirate,or deterministic
+     -d or --distprior <file>            : file containing the prior priobabilities for each location, one per line
+     -r or --resume                      : resume testing - load results so far from log file, and continue. 
+                                           Valid only if a og file is specified.
+
+
+"""
+
+
+def checkarg(arg,checkfunc):
+    try:
+        return checkfunc(arg)
+    except ValueError:
+        return None
+    except TypeError:
+        return None
+
+
+likelihoodSet={"singlerate": likelihoods.singleRateCalc,
+               "multirate": likelihoods.multiRateCalc,
+               "deterministic": likelihoods.deterministicCalc}
+
+def getIdentifiers(fname):
+    # fixme: why default to None under error? Will be confusing for the user
+    try:
+        f=file(fname,"r")
+        
+        res=[l.strip() for l in f]
+        if len(res)==0:
+            return None
+        else:
+            return res
+    except TypeError:        
+        return None
+
+def getPrior(fname,N):
+    f=file(fname,"r")
+    prior=[float(l) for l in f]
+    if len(prior)!=N:
+        raise "Wrong number of entries in prior file"
+    return prior
+    
+
+    
+        
+
+def parseArgs():
+    testscript=None
+    positives=0
+    negatives=0
+    locations=None
+    certainty=None
+    identifiersFilename=None
+    distPriorFilename=None
+    resume=False
+    likelihoodCalc="singlerate"
+    logFileName=None
+    switchScript=None
+    
+    try:
+        (opts,rest) = getopt.gnu_getopt(sys.argv[1:],options,options_long)
+    except getopt.GetoptError:
+        usage()
+        sys.exit(1)
+
+
+
+
+    for (o,a) in opts:
+        if o in ['-l','--locations']:
+            locations=a
+        elif o in ['-c','--certainty']:
+            certainty=a
+        elif o in ['-p','--positives']:
+            positives=a
+        elif o in ['-n','--negatives']:
+            negatives=a
+        elif o in ['-t','--testscript']:
+            testscript=a
+        elif o in ['-k','--likelihood']:
+            likelihoodCalc=a
+        elif o in ['-i','--identifiers']:
+            identifiersFilename=a
+        elif o in ['-d','--distprior']:
+             distPriorFilename=a
+        elif o in ['-r','--resume']:
+            resume=True
+        elif o in ['-s','--switchscript']:
+            switchScript=a
+        elif o in ['-g','--log']:
+            logFileName=a
+        
+
+
+    locations=checkarg(locations,int)
+    certainty=checkarg(certainty,float)
+    negatives=checkarg(negatives,int)
+    positives=checkarg(positives,int)
+    identifiers=getIdentifiers(identifiersFilename)
+
+    if likelihoodSet.has_key(likelihoodCalc.lower()):
+        likelihoodCalc=likelihoodSet[likelihoodCalc.lower()]
+    else:
+        print "Argument error: Unknown likelihood function\n"
+        usage()
+        sys.exit()
+        
+
+    if logFileName is None and resume:
+        print "cannot resume: no logfile specified\n"
+        usage()
+        sys.exit
+
+    if locations is None and identifiers is None:
+        print "Argument error: Must specify number of locations or file of identifiers\n"
+        usage()
+        sys.exit(1)
+    elif locations is None:
+        locations=len(identifiers)
+    elif identifiers is None:
+        identifiers=[repr(i) for i in range(locations)]
+    
+    if distPriorFilename is not None:
+        prior=getPrior(distPriorFilename,len(identifiers))
+    else:
+        prior=None
+
+
+    if certainty is None:
+        print "Argument error: Must specify termination certainty\n"
+        usage()
+        sys.exit(1)
+    return (locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript)
+
+
+class runClass:
+    def __init__(self,identifiers,logger,switchScript):
+        self.identifiers=identifiers
+        self.logger=logger
+        self.switchScript=switchScript
+
+    def switch(self,where):
+        if self.switchScript is not None:
+            cmd=self.switchScript+" "+self.identifiers[where]
+            retval=os.system(cmd)
+            if os.WIFEXITED(retval):
+                code=os.WEXITSTATUS(retval)
+                if code!=0:
+                    raise "switch script (%s) exited with code %d \n" % (cmd,code)
+            else:
+                raise "switch script (%s) did not exit normally\n" % (cmd)
+        
+
+
+    def statusCallback(self,ended,mostLikely,mostLikelyProb,probs,counts):
+        if ended:
+            print "\nSearch complete. ",
+        print "Most likely location is %s (probability %f)." % (self.identifiers[mostLikely],mostLikelyProb)
+
+
+# assumes unix return code from script
+class scriptTest(runClass):
+    def setscript(self,testscript):
+        self.script=testscript
+
+    def test(self,where):
+        self.switch(where)
+        cmd=self.script+" "+self.identifiers[where]
+        retval=os.system(cmd)
+
+
+        if os.WIFEXITED(retval):
+            code=os.WEXITSTATUS(retval)
+
+            # codes as in 'git bisect'
+            if code==0:
+                ret= True
+            elif code==125:
+                ret= None
+            elif code>0 and code<=127:
+                ret= False
+            else:
+                raise "unknown exit code from (%s) = %d\n" % (cmd,code)
+        else:
+            raise "test script (%s) did not exit normally\n" % (cmd)
+        
+        self.logger.log(where,ret)
+        return ret
+            
+            
+
+class manualTest(runClass):
+    def test(self,where):
+        self.switch(where)
+        print "Please test at location %s." % self.identifiers[where]
+        prompt="Target detected at %s, Y/N/S(kip)? " % self.identifiers[where]
+
+        while True:
+            instr=raw_input(prompt)
+            if instr in ['Y','y']:
+                ret= True
+                break
+            elif instr in ['N','n']:
+                ret= False
+                break
+            elif instr in ['S','s','Skip','skip']:
+                ret= None
+                break
+
+        self.logger.log(where,ret)
+        return ret
+
+
+
+(locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript)=parseArgs()
+
+# FIXME: deal with positives, negatives, switchscript
+
+logger=testLog.logger(logFileName,resume) #logger handles logFileName==None (ie, doesn't log)
+
+
+#if specified, prior is loaded in parseArgs(). Otherwise, uniform default is set here.
+if prior is None:
+    prior=[ 1/float(locations) for i in range(locations)]
+
+if testscript is None:
+    interactor=manualTest(identifiers,logger,switchScript)
+else:
+    interactor=scriptTest(identifiers,logger,switchScript)
+    interactor.setscript(testscript)
+
+
+thisDag=dag.listDagObj
+
+finder=BBChop(prior,certainty,interactor,likelihoodCalc,thisDag)
+
+finder.addPriorKnowlege(positives,negatives)
+
+if resume:
+    resultsSoFar=logger.getResults()
+    for (location,observation) in resultsSoFar:
+        finder.addResult(location,observation)
+
+
+where=finder.search()
+logger.close()
+
+print "Number of tests at %s: %d of which %d detected" %(identifiers[where],sum(finder.counts[where]),finder.counts[where][1])
+
+if len(thisDag.parents(where))>0:
+    print "Number of tests at parents of %s:" % (identifiers[where])
+    for p in thisDag.parents(where):
+        print "\t At %s, %d of which %d detected" %(identifiers[p],sum(finder.counts[p]),finder.counts[p][1])
+else:
+    print "Location %s has no parents" %(identifiers[where])
+
