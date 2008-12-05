@@ -69,8 +69,10 @@ def runTests(testFunc,casesFunc):
     
     if fail:
         print "FAILED!"
+        sys.exit(1)
     else:
         print "PASSED!"
+        sys.exit(0)
 
 
 

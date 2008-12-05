@@ -1,13 +1,14 @@
+all: run_test run_etest
 
-topdir = /home/ajb/progs/checkout/BBChop
+topdir = $(shell (cd ../; pwd))
 RUNPY=PYTHONPATH=$(topdir)/source/ python
 
 run_test:
 	$(RUNPY) BBChopTest.py
 
-run_time:
-	$(RUNPY) BBChopTime.py
-
 
 run_etest:
 	$(RUNPY) entropiesTest.py
+
+run_dagtest:
+	$(RUNPY) testdag.py
