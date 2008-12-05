@@ -129,18 +129,24 @@ def randomdagDef(N):
             parents[c].append(i)
 
     return parents
+
+
        
-def randomdag(N,dagModule=dag,parents=None):
+def randomdagTxt(N,parents=None):
     if parents is None:
         parents=randomdagDef(N)
     
     di=[' '.join(map(str,[i]+parents[i])) for i in range(len(parents))]
+    return di
+
+def randomdag(N,dagModule=dag,parents=None):
+    di=randomdagTxt(N,parents)
     d=dagModule.dag(di,N)
 
     return d
          
 
-
+    
         
 if __name__=='__main__':
     random.seed(1)

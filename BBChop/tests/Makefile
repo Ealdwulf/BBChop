@@ -1,14 +1,19 @@
-all: run_test run_etest
+
+TESTS = \
+	BBChopTest.test \
+	entropiesTest.test \
+	testdag.test \
+	testDagRead.test
+
+
+all: $(TESTS)
+	echo "ALL PASSED"
 
 topdir = $(shell (cd ../; pwd))
 RUNPY=PYTHONPATH=$(topdir)/source/ python
 
-run_test:
-	$(RUNPY) BBChopTest.py
 
 
-run_etest:
-	$(RUNPY) entropiesTest.py
 
-run_dagtest:
-	$(RUNPY) testdag.py
+%.test: %.py
+	$(RUNPY) $<
