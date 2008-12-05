@@ -52,28 +52,7 @@ class absDag:
    
 
 class dag(absDag):
-    def __init__(self,dagInput,N):
-
-        parents=[]
-        if len(dagInput)!=N:
-            raise DAGWrongLength
-
-        for i in range(len(dagInput)):
-            line=dagInput[i]
-            ns=line.split()
-            if int(ns[0])!=i:
-                raise IllFormedDagFile
-                   
-            ns.pop(0)
-            thisparents=[int(n) for n in ns]
-
-            for p in thisparents:
-                if p>=i:
-                    raise IllFormedDAGFile
-
-            parents.append(thisparents)
-
-        
+    def __init__(self,parents,N):
 
         self.parents=parents
         

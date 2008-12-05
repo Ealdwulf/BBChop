@@ -140,8 +140,10 @@ def randomdagTxt(N,parents=None):
     return di
 
 def randomdag(N,dagModule=dag,parents=None):
-    di=randomdagTxt(N,parents)
-    d=dagModule.dag(di,N)
+    if parents is None:
+        parents=randomdagDef(N)
+
+    d=dagModule.dag(parents,N)
 
     return d
          
