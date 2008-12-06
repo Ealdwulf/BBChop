@@ -62,7 +62,7 @@ TODO:
  - Driver program:
    - cannot specifiy priors with dag. How to fix? Could require identifiers in prior file, or 
      add priors to dag file?
-   - should log by default (to fixed filename? bbchop.log?)
+   - should log by default (to fixed filename -  bbchop.log?)
 
 - produce distribution graphs for greedyStrat and nearlyGreedyStrat
 
