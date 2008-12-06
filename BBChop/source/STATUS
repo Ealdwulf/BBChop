@@ -60,7 +60,9 @@ TODO:
  dominating and antidominating nodes, which will usually be the case)
 
  - Driver program:
-   - add parsing of dag
+   - cannot specifiy priors with dag. How to fix? Could require identifiers in prior file, or 
+     add priors to dag file?
+   - should log by default (to fixed filename? bbchop.log?)
 
 - produce distribution graphs for greedyStrat and nearlyGreedyStrat
 
@@ -73,6 +75,7 @@ TODO:
 
 
 Done:
+   - add parsing of dag
    - logging and restarting from log
    - add option to read in priors
    - add option to call script to switch even when decisions are manual

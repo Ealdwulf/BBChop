@@ -5,6 +5,7 @@ import getopt
 import likelihoods
 import os
 import dag
+import dagRead
 import testLog
 
 options = "c:d:g:i:k:l:n:p:rs:t:"
@@ -31,6 +32,8 @@ bbchop -l <locations> -c <certainty> [-t <test script>] [-p <positives] [-n nega
 
      -l or --locations <locations>       : number of locations. If this option is used, location identifiers are
                                            numbers in [0..N)
+     -a or --ancestry <file>             : file containing description of location DAG, one location per line. 
+                                           Each line is of the form <id of location>[<whitespace><id of parent]*
      -g or --log <file>                  : log test results to file
      -i or --identifiers <file>          : a file containing a list of location identifiers, one per line.
 
@@ -75,7 +78,6 @@ likelihoodSet={"singlerate": likelihoods.singleRateCalc,
                "deterministic": likelihoods.deterministicCalc}
 
 def getIdentifiers(fname):
-    # fixme: why default to None under error? Will be confusing for the user
     try:
         f=file(fname,"r")
         
@@ -85,7 +87,7 @@ def getIdentifiers(fname):
         else:
             return res
     except TypeError:        
-        return None
+        return None   # caller must deal with error
 
 def getPrior(fname,N):
     f=file(fname,"r")
@@ -103,8 +105,10 @@ def parseArgs():
     positives=0
     negatives=0
     locations=None
+    ancestryFilename=None
     certainty=None
     identifiersFilename=None
+    identifiers=None
     distPriorFilename=None
     resume=False
     likelihoodCalc="singlerate"
@@ -123,6 +127,8 @@ def parseArgs():
     for (o,a) in opts:
         if o in ['-l','--locations']:
             locations=a
+        elif o in ['-a','--ancestry']:
+            ancestryFilename=a
         elif o in ['-c','--certainty']:
             certainty=a
         elif o in ['-p','--positives']:
@@ -150,7 +156,30 @@ def parseArgs():
     certainty=checkarg(certainty,float)
     negatives=checkarg(negatives,int)
     positives=checkarg(positives,int)
-    identifiers=getIdentifiers(identifiersFilename)
+
+
+
+    if identifiersFilename is not None:
+        if ancestryFilename is not None:
+            print "specification of ancestry and indentifiers are incompatible"
+            print "(identifiers are in ancestry file anyway)"
+            sys.exit(1)
+        identifiers=getIdentifiers(identifiersFilename)
+        if identifiers is None:
+            print "failed to read identifiers\n"
+            usage()
+            sys.exit()
+
+    if ancestryFilename is not None:
+        f=file(ancestryFilename,"r")
+        (identifiers,parents)=dagRead.read(f)
+        f.close()
+        thisDag=dag.dag(parents)
+    else:
+        thisDag=dag.listDagObj
+
+        
+    
 
     if likelihoodSet.has_key(likelihoodCalc.lower()):
         likelihoodCalc=likelihoodSet[likelihoodCalc.lower()]
@@ -184,7 +213,7 @@ def parseArgs():
         print "Argument error: Must specify termination certainty\n"
         usage()
         sys.exit(1)
-    return (locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript)
+    return (locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript,thisDag)
 
 
 class runClass:
@@ -266,7 +295,7 @@ class manualTest(runClass):
 
 
 
-(locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript)=parseArgs()
+(locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript,thisDag)=parseArgs()
 
 # FIXME: deal with positives, negatives, switchscript
 
@@ -284,7 +313,6 @@ else:
     interactor.setscript(testscript)
 
 
-thisDag=dag.listDagObj
 
 finder=BBChop(prior,certainty,interactor,likelihoodCalc,thisDag)
 
