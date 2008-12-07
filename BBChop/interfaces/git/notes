@@ -1,0 +1,27 @@
+	How to use BBChop with git
+
+Caveat user! This has had very little testing.
+
+
+BBCHop is SCM agnostic, so the history information has to be exported 
+into a form it understands. git-bbchop-list is a script to do this. 
+it runs git-rev-list with its arguments plus '--bisect-all --parents'.
+Then it filters out the funny '(dist=xx)' things and and parents not 
+actually in the list. Usage:
+
+  git-bbchop-list <failing> ^<passing> >myhist.txt
+
+where <passing> and <failing> are version ids.
+
+Then one can try running, eg:
+
+    bbchop -a myhist.txt -g chop.log -c 0.9
+    # -g specifies the log file, -c the certainty to quit at
+
+This does not actually drive git. There are two hooks :
+  -s or --switchscript <file>   # pass a script to call for each revision
+  -t or --testscript <file>     # pass a script to do the test (exactly as passed to git bisect run)
+
+The idea is that the switchscript can be a standard script to switch revisions, running the relavent git
+command; it is passed the revision id as its first argument.  But I'm not supplying one as I don't know 
+git (or the workflow of git users) well enough to write a safe one.
