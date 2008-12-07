@@ -1,2 +1,4 @@
 #!/bin/sh
-git rev-list	$*  --bisect-all --parents |sed 's/([^)]*)//g'
+edir=`dirname $0`
+
+git rev-list	$*  --bisect-all --parents | $edir/filt.py 
