@@ -1,4 +1,45 @@
-#!/bin/sh
-edir=`dirname $0`
+#!/usr/bin/python
+# filter the output of git-rev-list,
+# for use by BBChop
 
-git rev-list	$*  --bisect-all --parents | $edir/filt.py 
+import sys
+import re
+import subprocess
+
+# we want to pass all the args to git rev-list
+args=' '.join(sys.argv[1:])
+
+command = 'git rev-list ' + args + ' --bisect-all --parents'
+
+
+proc=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE)
+
+
+
+parents=[]
+ids=[]
+
+(stdout,stderr)=proc.communicate()
+if proc.returncode is None:
+    proc.kill()
+    print "error running git rev-list"
+    sys.exit(1)
+
+stdout=stdout.rstrip()
+for line in stdout.split('\n'):
+    
+    # chop off any annotation, leaving only what we want
+    bra=line.find('(')
+    if bra!=-1:
+        line=line[:bra]
+    idpar=line.split()
+    ids.append(idpar[0])
+    parents.append(idpar[1:])
+
+
+# now do the output
+
+for i in range(len(ids)):
+    print ids[i]," ",
+    thispar=[p for p in parents[i] if p in ids]
+    print ' '.join(thispar)
