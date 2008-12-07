@@ -8,8 +8,9 @@ import dag
 import dagRead
 import testLog
 
-options = "c:d:g:i:k:l:n:p:rs:t:"
+options = "a:c:d:g:i:k:l:n:p:rs:t:"
 options_long  = [
+    "ancestry=",
     "certainty=",
     "distprior=",
     "log",
@@ -174,7 +175,7 @@ def parseArgs():
         f=file(ancestryFilename,"r")
         (identifiers,parents)=dagRead.read(f)
         f.close()
-        thisDag=dag.dag(parents)
+        thisDag=dag.dag(parents,len(parents))
     else:
         thisDag=dag.listDagObj
 
@@ -276,7 +277,7 @@ class manualTest(runClass):
     def test(self,where):
         self.switch(where)
         print "Please test at location %s." % self.identifiers[where]
-        prompt="Target detected at %s, Y/N/S(kip)? " % self.identifiers[where]
+        prompt="Target detected at %s? Y/N/S(kip) " % self.identifiers[where]
 
         while True:
             instr=raw_input(prompt)
@@ -329,9 +330,9 @@ logger.close()
 
 print "Number of tests at %s: %d of which %d detected" %(identifiers[where],sum(finder.counts[where]),finder.counts[where][1])
 
-if len(thisDag.parents(where))>0:
+if len(thisDag.getParents(where))>0:
     print "Number of tests at parents of %s:" % (identifiers[where])
-    for p in thisDag.parents(where):
+    for p in thisDag.getParents(where):
         print "\t At %s, %d of which %d detected" %(identifiers[p],sum(finder.counts[p]),finder.counts[p][1])
 else:
     print "Location %s has no parents" %(identifiers[where])

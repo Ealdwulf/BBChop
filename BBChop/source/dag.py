@@ -81,7 +81,7 @@ class dag(absDag):
         self.multiAfter=listCond(self.linearEnd,self.multiAfter,empty)
         
 
-    def parents(self,loc):
+    def getParents(self,loc):
         return self.parents[loc]
 
 
@@ -175,7 +175,7 @@ class dag(absDag):
 # like dag, but assumes linear order
 class listDag(absDag):
 
-    def parents(self,loc):
+    def getParents(self,loc):
         if loc==0:
             return []
         else:
