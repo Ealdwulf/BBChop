@@ -47,7 +47,9 @@ def usage():
     print """
 bbchop is a binary search program that works in the presense of false negatives. 
 
-bbchop -l <locations> -c <certainty> [-t <test script>] [-p <positives] [-n negatives] [-k xxx]
+bbchop -l <locations> -c <certainty> [<options>]
+bbchop -a <file>      -c <certainty> [<options>]
+bbchop -i <file>      -c <certainty> [<options>]
 
 
      -l or --locations <locations>       : number of locations. If this option is used, location identifiers are

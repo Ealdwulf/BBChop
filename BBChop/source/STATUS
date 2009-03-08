@@ -7,9 +7,11 @@ Well tested:
   dag.py
   evidence.py
   likelihood.py
+  BBChop.py
 
 Only casual testing so far:
   bbchop       - ie, the main driver program. 
+  dagRead.py
   testLog.py
   listUtils.py (although it's well exercized by the testing of the math modules)
   
@@ -29,7 +31,7 @@ Questions:
 
 - precision 
 
-Due to the calculation of proabbilities by normalising likelihoods, we have to use high precision
+Due to the calculation of probabilities by normalising likelihoods, we have to use high precision
 math (mpmath) to avoid divide by zero when numbers get too small for 'doubles'.
 I have still seen suspicious behavior at N=1000; should really find out what precision is required
 (setting in numbers.py is a guess).
