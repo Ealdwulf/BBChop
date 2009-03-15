@@ -79,10 +79,6 @@ def runTests(testFunc,casesFunc):
         fail=fail and tfail 
     
     
-    
-    
-    
-    
     if fail:
         print "FAILED!"
         sys.exit(1)
