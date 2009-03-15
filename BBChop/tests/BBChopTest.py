@@ -32,14 +32,16 @@ cert=0.9
 
 trials=50
 
-def testChop(likelihoodObj,dagObj,falseNeg,multi):
+def testChop(likelihoodObj,randomDag,falseNeg,multi):
     tests=0
     right=0
     wrong=[]
     totalLooks=0.0
     
     for k in range(trials):
+
         random.seed(k+1)
+        dagObj=testCases.testDag(N,randomDag)
         if falseNeg:
             rate=random.random()
         else:
@@ -60,7 +62,7 @@ def testChop(likelihoodObj,dagObj,falseNeg,multi):
             wrong.append(guess)
     
         #if((k+1)%10 == 0):
-        print "right%=",100.0*right/(k+1),"right=",loc==guess,"totallooks=",totalLooks/(k+1),"looks=",finder.total,"rate=",rate
+        print "test ",k," right%=",100.0*right/(k+1),"right=",loc==guess,"totallooks=",totalLooks/(k+1),"looks=",finder.total,"rate=",rate
             
         #if((k+1)%100 ==0):
         #   tester.printLocs()
@@ -71,8 +73,7 @@ def testChop(likelihoodObj,dagObj,falseNeg,multi):
 def testFunc(case):
     print "testing " ,case.likelihoodObj.name(),"randomDag=",case.randomDag
     
-    d=testCases.testDag(N,case.randomDag)
-    return testChop(case.likelihoodObj,d,case.falseNeg,case.multi)
+    return testChop(case.likelihoodObj,case.randomDag,case.falseNeg,case.multi)
 
 
 
@@ -80,3 +81,11 @@ def testFunc(case):
 
 
 testCases.runTests(testFunc,testCases.BBChopTestCases)
+
+
+## for testing a specific case:
+if 0:
+    import copy
+    myCase=copy.copy(testCases.single)
+    myCase.randomDag=True
+    testFunc(myCase)
