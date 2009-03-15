@@ -33,8 +33,18 @@ Questions:
 
 Due to the calculation of probabilities by normalising likelihoods, we have to use high precision
 math (mpmath) to avoid divide by zero when numbers get too small for 'doubles'.
-I have still seen suspicious behavior at N=1000; should really find out what precision is required
-(setting in numbers.py is a guess).
+
+
+The problem is the Beta function. In bbchop it is always passed D and T where D is 
+the sum of the number of detecting observations in some of the revisions, and T is the 
+same for nondetecting observations. Beta(x,y) underflows a python float 
+if both x and y are > ~550, and also in other cases when one is smaller and the other, 
+larger. BBChop never looks again at a revision if the bug has been observed there, but if 
+there are a large number of revisions, it might look at enough of them to cause a problem.
+
+Obviously no-one is going to manually do hundreds of observations, but  I want BBChop 
+to work in the case where someone runs it on a machine in the corner for a few days,
+or even weeks,  to track down a bug which occurs too infrequently to bisect manually. 
 
 
 - cost

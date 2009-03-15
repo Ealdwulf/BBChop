@@ -17,8 +17,8 @@
 
 # define what kind of number object to use
 
-numberType = 'float'
-#numberType = 'mpmath'
+#numberType = 'float'
+numberType = 'mpmath'
 
 import math
 
