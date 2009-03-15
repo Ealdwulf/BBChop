@@ -1,0 +1,20 @@
+
+Er, sorry, there isn't an install procedure yet.
+
+However, it's simple to run BBChop from the source tree. You need:
+
+ - a version of python (I have 2.5.2, versions close to that should work)
+ - mpmath 
+          http://code.google.com/p/mpmath/, 
+	  packaged as python-mpmath in debian based distros
+	  (bundled with sympy in fedora?)
+
+  [Actually any arbitrary precision library should work, but when I last looked
+  only mpmath came with a fractional power function.]
+
+Once the prerequisites are installed, you can run bbchop. You need to set PYTHONPATH to point at
+the source dir, eg:
+
+PYTHONPATH=/path/to/BBChop/source bbchop
+
+
