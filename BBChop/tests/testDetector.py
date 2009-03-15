@@ -72,7 +72,8 @@ class detect:
 
 
     def statusCallback(self,ended,mostLikely,mostLikelyProb,probs,counts):
-        if self.debug:
-            print ended,mostLikely,mostLikelyProb
+        printX=400
+        if self.debug or (self.tests % printX)==(printX-1):
+            print ended,mostLikely,mostLikelyProb,self.tests
 
 
