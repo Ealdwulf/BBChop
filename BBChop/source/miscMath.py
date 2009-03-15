@@ -18,10 +18,28 @@
 import numbers
 
 # standard beta function
-def Beta(x,y):
+
+
+
+# flag to determine whether to use the dumb version or log-space version.
+useLogFact=1
+
+# log-space version
+def BetaX(x,y):
+    return numbers.exp(logGamma(x)+logGamma(y)-logGamma(x+y))
+
+# dumb version (subexpressions are huge)
+def BetaY(x,y):
     return (Gamma(x)*Gamma(y)+0.0)/Gamma(x+y)
 
-# Standard gamma funtion, but only works on integers, which is all I need.
+
+if useLogFact:
+    Beta=BetaX
+else:
+    Beta=BetaY
+
+
+# Standard gamma function, but only works on integers, which is all I need.
 def Gamma(x):
     if(x==0):
         raise "Gamma called on zero!"
@@ -29,15 +47,34 @@ def Gamma(x):
         return 1
     return fact(x-1)
 
+
+
+# logGamma
+def logGamma(x):
+    if(x==0):
+        raise "Gamma called on zero!"
+    if(x==1):
+        return 0
+    return logFact(x-1)
+
 # standard factorial function
 
 factMemo=[numbers.const('1')]
 
-
+# standard factorial function
 def fact(x):
     while(x>=len(factMemo)):
         factMemo.append(factMemo[-1]*len(factMemo))
     return factMemo[x]
+
+# log-factorial function
+
+logFactMemo=[numbers.const('0')]
+
+def logFact(x):
+    while(x>=len(logFactMemo)):
+        logFactMemo.append(logFactMemo[-1]+numbers.log(len(logFactMemo)))
+    return logFactMemo[x]
 
 
 def choice(n,k):
