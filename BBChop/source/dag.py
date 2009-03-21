@@ -83,8 +83,9 @@ class dag(absDag):
 
         self.children=children
             
-
-        self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in range(N)]
+        # a linear stretch ends if a node has multiple children or its child has multiple parents
+        self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in range(N)] 
+        # a linear stretch starts if a node has multiple parents or its parent has multiple children
         self.linearStart=[len(parents[i])!=1 or len(children[parents[i][0]])!=1 for i in range(N)]
 
         loc=[set([i]) for i in range(N)]
