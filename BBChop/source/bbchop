@@ -279,11 +279,11 @@ class scriptTest(runClass):
 
             # codes as in 'git bisect'
             if code==0:
-                ret= True
+                ret= False
             elif code==125:
                 ret= None
             elif code>0 and code<=127:
-                ret= False
+                ret= True
             else:
                 raise "unknown exit code from (%s) = %d\n" % (cmd,code)
         else:
