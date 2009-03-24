@@ -47,7 +47,7 @@ class tester:
         
     
 
-for i in range(10,numTests):
+for i in range(numTests):
     random.seed(i)
     thisfail=False
 
