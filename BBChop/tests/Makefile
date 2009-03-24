@@ -26,9 +26,11 @@ all: $(TESTS)
 	echo "ALL PASSED"
 
 topdir = $(shell (cd ../; pwd))
-RUNPY=PYTHONPATH=$(topdir)/source/ python
+PYTHONPATH=$(topdir)/source/
+RUNPY=python
 
-
+export topdir
+export PYTHONPATH
 
 
 %.test: %.py
