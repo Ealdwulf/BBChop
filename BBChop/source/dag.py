@@ -17,6 +17,7 @@
 
 
 from listUtils import listSub,prod,listComb,listCond
+import copy
 # class for computing over directed acyclic graphs.
 # values are held outside the graph object, in lists
 
@@ -39,13 +40,27 @@ def union(args):
     return res
     
 
+def filterDupes(aList):
+    aList.sort()
+    uniq=[]
+    dupes=[]
+    prev=None
+    for e in aList:
+        if e==prev:
+            dupes.append(e)
+        else:
+            uniq.append(e)
+        prev=e
+    return (uniq,dupes)
+
+
 # abstract dag class: defines sum,and type functions in terms of comb functions
 class absDag:
     def sumUpto(self,values):
-        return self.combUptoSingle(values,sum)
+        return self.combUptoUnique(values,sum)
     
     def sumAfter(self,values):
-        return self.combAfterSingle(values,sum)
+        return self.combAfterUnique(values,sum)
         
     def anyUpto(self,values):
         return self.combUpto(values,any)
@@ -59,7 +74,7 @@ class absDag:
         return res
 
     def prodAfter(self,values):
-        return self.combAfterSingle(values,prod)
+        return self.combAfterUnique(values,prod)
     
     def unionUpto(self,values):
         return self.combUpto(values,union)
@@ -67,7 +82,99 @@ class absDag:
     def unionAfter(self,values):
         return self.combAfter(values,union)
         
-   
+import pdb
+
+def findCover(soFar,covered,node,parents):
+    ret=[]
+    
+
+    for p in parents[node]:
+        if len(covered[p].intersection(soFar))>0:
+            if covered[p].issubset(soFar):
+                ret.append(p)
+            else:
+                (newDupes,soFar) = findCover(soFar,covered,p,parents)
+                ret.extend(newDupes)
+        else:
+            soFar=soFar.union(covered[p])
+
+    return (ret,soFar)
+        
+
+class CommonSubExpressions:
+    def __init__(self,numVals):
+        self.numVals=numVals
+        self.subExps=[None]*numVals
+        self.soFar={}
+
+    def doCalc(self,values,comb,nil):
+        if len(values)!=self.numVals:
+            raise "initialised woth incorrect value length"
+
+        temp=copy.copy(values)
+
+        for i in range(self.numVals,len(self.subExps)):
+            if self.subExps[i] is None:
+                temp.append(values[i])
+            elif self.subExps[i] is -1:
+                temp.append(nil)
+            else:
+                (a,b)=self.subExps[i]
+                temp.append(comb([temp[a],temp[b]]))
+        return temp
+
+
+    def getExp(self,a,b):
+        x=[a,b]
+        x.sort()
+        x=tuple(x)
+        return self.findExp(x)
+
+    def findExp(self,x):
+        if x in self.soFar:
+            return self.soFar[x]
+        else:
+            ret=len(self.subExps)
+            self.subExps.append(x)
+            self.soFar[x]=ret
+            return ret
+
+    def getNil(self):
+        return self.findExp(-1)
+
+
+    
+    def getExpList(self,l):
+        if len(l)==0:
+            return self.getNil()
+
+
+        virt=0
+        loc=1
+
+        nl=[(i,i) for i in l]
+
+        while len(nl)>1:
+            next=[]
+            while len(nl)>1:
+                a=nl[0]
+                b=nl[1]
+                if  (a[virt]+1) == b[virt] and not (a[virt]&1):
+                    next.append((a[virt]/2,self.getExp(a[loc],b[loc])))
+                    nl.pop(0)
+                    nl.pop(0)
+                else:
+                    next.append((a[virt]/2,a[loc]))
+                    nl.pop(0)
+            while len(nl)>0:
+                a=nl[0]
+                next.append((a[virt]/2,a[loc]))
+                nl.pop(0)
+                
+                                
+            nl=next
+        return nl[0][loc]
+                
 
 class dag(absDag):
     def __init__(self,parents,N):
@@ -83,76 +190,50 @@ class dag(absDag):
 
         self.children=children
             
-        # a linear stretch ends if a node has multiple children or its child has multiple parents
-        self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in range(N)] 
-        # a linear stretch starts if a node has multiple parents or its parent has multiple children
-        self.linearStart=[len(parents[i])!=1 or len(children[parents[i][0]])!=1 for i in range(N)]
 
         loc=[set([i]) for i in range(N)]
-        empty=[set() for i in range(N)]
-        locE=listCond(self.linearEnd,loc,empty)
-        locS=listCond(self.linearStart,loc,empty)
         
-        self.multiUpto=self.unionUpto(locE)
-        self.multiUpto=listCond(self.linearStart,self.multiUpto,empty)
+
+
+
+        # experimental faster alg prep
+        coveredUpto = self.unionUpto(loc)
+        coveredAfter = self.unionAfter(loc)
         
-        self.multiAfter=self.unionAfter(locS)
-        self.multiAfter=listCond(self.linearEnd,self.multiAfter,empty)
+
+
+        self.cseUpto = CommonSubExpressions(N)
+        self.cseAfter = CommonSubExpressions(N)
         
+        def toSortedList(x):
+            x=list(x)
+            x.sort()
+            return x
+
+        self.uptoExpr = [ self.cseUpto.getExpList(toSortedList(coveredUpto[i])) for i in range(N)]
+        self.AfterExpr = [ self.cseAfter.getExpList(toSortedList(coveredAfter[i])) for i in range(N)]
+
+
+    # The 'unique' versions of the methods do not assume that the combination function is idempotent. 
+        
+    def combUptoUnique(self,values,comb):
+        
+        temp = self.cseUpto.doCalc(values,comb,comb([]))
+        res = [temp[self.uptoExpr[i]] for i in range(len(values))]
+        return res
+
+    def combAfterUnique(self,values,comb):
+        
+        temp = self.cseAfter.doCalc(values,comb,comb([]))
+        res = [temp[self.AfterExpr[i]] for i in range(len(values))]
+        return res
+
+
 
     def getParents(self,loc):
         return self.parents[loc]
 
 
-    def combUptoSingle(self,values,comb):
-
-        linear=self.combUptoLinear(values,comb)
-        linearS=listComb(comb,linear,values)
-        multi=self.combUptoMulti(linearS,comb)
-        linear2=self.combUptoLinear(multi,comb)
-        res=listComb(comb,linear,linear2,multi)
-        return res
-
-    def combAfterSingle(self,values,comb):
-
-        linear=self.combAfterLinear(values,comb)
-        linearS=listComb(comb,linear,values)
-        multi=self.combAfterMulti(linearS,comb)
-        linear2=self.combAfterLinear(multi,comb)
-        res=listComb(comb,linear,linear2,multi)
-        return res
-
-    def combUptoLinear(self,values,comb):
-        res=[comb([])]*len(values)
-
-        for i in range(len(values)):
-            if not self.linearStart[i]:
-                res[i]=comb([comb([values[j],res[j]]) for j in self.parents[i]])
-        return res
-
-
-    def combAfterLinear(self,values,comb):
-        res=[comb([])]*len(values)
-
-        for i in reversed(range(len(values))):
-            if not self.linearEnd[i]:
-                res[i]=comb([comb([values[j],res[j]]) for j in self.children[i]])
-        return res
-
-
-    def combUptoMulti(self,linear,comb):
-        res=[comb([])]*len(linear)
-        
-        for i in range(len(linear)):
-            res[i]=comb([linear[j] for j in self.multiUpto[i]] )
-        return res
-
-    def combAfterMulti(self,linear,comb):
-        res=[comb([])]*len(linear)
-        
-        for i in reversed(range(len(linear))):
-            res[i]=comb([linear[j] for j in self.multiAfter[i]] )
-        return res
 
     # these methods assume the consistentency defined above.
 
@@ -201,7 +282,7 @@ class listDag(absDag):
             return [loc-1]
         
 
-    def combUptoSingle(self,values,comb):
+    def combUptoUnique(self,values,comb):
         tot=comb([])
         res=[]
         for v in values:
@@ -210,9 +291,9 @@ class listDag(absDag):
         return res
 
     def combUpto(self,values,comb):
-        return self.combUptoSingle(values,comb)
+        return self.combUptoUnique(values,comb)
 
-    def combAfterSingle(self,values,comb):
+    def combAfterUnique(self,values,comb):
         tot=comb([])
         res=[]
         for v in reversed(values):
@@ -222,7 +303,7 @@ class listDag(absDag):
         return res
 
     def combAfter(self,values,comb):
-        return self.combAfterSingle(values,comb)
+        return self.combAfterUnique(values,comb)
 
     
     def sumOther(self,values):
