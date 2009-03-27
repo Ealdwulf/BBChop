@@ -1,7 +1,7 @@
 		BBChop Readme
 
 
-BBChop is like 'git bisect', but works when your bug is intermittent. That is, it works in the presence
+BBChop is like 'git bisect' (or equivalent), but works when your bug is intermittent. That is, it works in the presence
 of false negatives (when a version happens to work this time even though it contains the bug). It assumes that there are no false 
 positives (in principle, the same approach would work, but adding it may be non-trivial).
 
@@ -61,10 +61,10 @@ version control system:
        -s or --switchscript <script>:      : script to call to switch from one location to another. May be used with
                                            or without testscript. Hook for integration with version control systems.
 
-There is also a (largely untested) script (interfaces/git/git-bbchop-list) to extract a history DAG from git and 
+There is also a  script (interfaces/git/git-bbchop-list) to extract a history DAG from git and 
 print it in the format required by the -a option.
  
-Too see all the options, run bbchop with no arguments.
+To see all the options, run bbchop with no arguments.
 
 LIMITATIONS
 
@@ -73,7 +73,7 @@ renders it impractical depends on when it starts to be comparable to the time to
 it may be practical at 10,000 revisions or so.
 
  - For non-linear histories, it is currently worse than O(N). However, it is only above O(N) in the number of nodes which have 
-more than one parent or child. I think it could be made O(N) in cases where the DAG has both a supremum and an infimum.
+more than one parent or child. 
  
  - For manual operation, bbchop does not support the same interface as git bisect; the tests need to be run in a separate shell.
  However, it does support reloading its log, so this could be added.
