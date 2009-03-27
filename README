@@ -1,15 +1,19 @@
 		BBChop Readme
 
 
-BBChop is like 'git bisect' (or equivalent), but works when your bug is intermittent. That is, it works in the presence
-of false negatives (when a version happens to work this time even though it contains the bug). It assumes that there are no false 
-positives (in principle, the same approach would work, but adding it may be non-trivial).
+BBChop is like 'git bisect' (or equivalent), but works when your bug
+is intermittent. That is, it works in the presence of false negatives
+(when a version happens to work this time even though it contains the
+bug). It assumes that there are no false positives (in principle, the
+same approach would work, but adding it may be non-trivial). 
 
 
 
-It is currently experimental code. At the time of writing it has not found any real bugs, nor has anyone other than me 
-checked the maths. You have been warned. Having said that, the code as written shouldn't be able to do anything 
-dangerous, and works fine finding 'simulated bugs'.
+It is currently experimental code. At the time of writing it has not
+found any real bugs, nor has anyone other than me checked the
+maths. You have been warned. Having said that, the code as written
+shouldn't be able to do anything dangerous, and works fine finding
+'simulated bugs'. 
 
 ==========	How to try out  BBChop 
 
@@ -19,14 +23,16 @@ The simplest way to try it out to is run it in manual mode:
 
 >   bbchop -l 10 -c 0.9
 
-This means, search in a linear history of 10 revisions, numbered 0 to 9, until bbchop thinks it has found
-the faulty location with probability at least 0.9. It will start asking questions:
+This means, search in a linear history of 10 revisions, numbered 0 to
+9, until bbchop thinks it has found the faulty location with
+probability at least 0.9. It will start asking questions: 
 
 |Most likely location is 0 (probability 0.100000).
 |Please test at location 3.
 |Target detected at 3? Y/N/S(kip) 
 
-Eventually the search will terminate and BBChop will print out its conclusion, with evidence, eg:
+Eventually the search will terminate and BBChop will print out its
+conclusion, with evidence, eg: 
 
 |Search complete.  Most likely location is 3 (probability 0.919614).
 |Number of tests at 3: 3 of which 1 detected
@@ -39,27 +45,41 @@ In serious use, it is best to use always use the following options:
    -p N       # number of non-detecting observations made at the known failing revision
 
 
-The -n and -p options give bbchop its initial idea of how frequently the failure occurs. Without this, it (roughly speaking)
-assumes a probability of 0.5. It is always advisable to supply these:  If its initial idea is too low, the search will take 
-longer than necessary. More seriously, if its initial idea is too high, the search may terminate (at an incorrect location)
-before it has learnt this. With a sufficiently high initial probability, bbchop behaves like got bistect (at least for linear 
-histories - it would be interesting to compare with nonlinear ones).
+The -n and -p options give bbchop its initial idea of how frequently
+the failure occurs. Without this, it (roughly speaking) assumes a
+probability of 0.5. It is always advisable to supply these:  If its
+initial idea is too low, the search will take longer than
+necessary. More seriously, if its initial idea is too high, the search
+may terminate (at an incorrect location) before it has learnt
+this. With a sufficiently high initial probability, bbchop behaves
+like got bistect (at least for linear histories - it would be
+interesting to compare with nonlinear ones). 
 
-BBChop is based on Bayesian Search Theory (http://en.wikipedia.org/wiki/Bayesian_search_theory). Hence the name, 'Bayesian Binary 
-Chop'. You do not, however, have to know, want to know, or even believe in, bayesian probability theory in order to use it. When it 
-comes to a conclusion, it always prints out some supporting evidence, which you can evaluate with your native intuition. In fact, 
-it is better to ignore the probability values it prints unless you are confident that you understand the assumptions behind them 
-(which are nontrivial).
+BBChop is based on Bayesian Search Theory
+(http://en.wikipedia.org/wiki/Bayesian_search_theory). Hence the name,
+'Bayesian Binary Chop'. You do not, however, have to know, want to
+know, or even believe in, bayesian probability theory in order to use
+it. When it comes to a conclusion, it always prints out some
+supporting evidence, which you can evaluate with your native
+intuition. In fact, it is better to ignore the probability values it
+prints unless you are confident that you understand the assumptions
+behind them  (which are nontrivial).
 
 
-Unlike 'git bisect', bbchop is not integrated with a version control system. It has hooks to allow it to be integrated with a 
-version control system:
+Unlike 'git bisect', bbchop is not integrated with a version control
+system. It has hooks to allow it to be integrated with a version
+control system: 
 
-       -i or --identifiers <file>          : a file containing a list of location identifiers, one per line.
-       -a or --ancestry <file>             : file containing description of location DAG, one location per line. 
-                                           Each line is of the form <id of location>[<whitespace><id of parent]*
-       -s or --switchscript <script>:      : script to call to switch from one location to another. May be used with
-                                           or without testscript. Hook for integration with version control systems.
+       -i or --identifiers <file>          : a file containing a list
+                                             of location identifiers, one per line.
+       -a or --ancestry <file>             : file containing description of location
+                                             DAG, one location per line. 
+                                             Each line is of the form:
+					     <id of location>[<whitespace><id of parent]*
+       -s or --switchscript <script>:      : script to call to switch
+                                             from one location to  another. May be used with
+                                             or without testscript. Hook for
+                                             integration with version control systems. 
 
 There is also a  script (interfaces/git/git-bbchop-list) to extract a history DAG from git and 
 print it in the format required by the -a option.
@@ -68,13 +88,17 @@ To see all the options, run bbchop with no arguments.
 
 LIMITATIONS
 
- - Each decision is O(N) in the number of revisions to be searched. (It was quite hard to get this down from O(N^2)). When this 
-renders it impractical depends on when it starts to be comparable to the time to actually do a test. For many purposes
-it may be practical at 10,000 revisions or so.
+ - Each decision is O(N) in the number of revisions to be
+   searched. (It was quite hard to get this down from O(N^2)). When
+   this renders it impractical depends on when it starts to be
+   comparable to the time to actually do a test. For many purposes it
+   may be practical at 10,000 revisions or so. 
 
- - For non-linear histories, it is currently worse than O(N). However, it is only above O(N) in the number of nodes which have 
-more than one parent or child. 
+ - For non-linear histories, it is currently worse than O(N). However,
+   it is only above O(N) in the number of nodes which have more than
+   one parent or child.  
  
- - For manual operation, bbchop does not support the same interface as git bisect; the tests need to be run in a separate shell.
- However, it does support reloading its log, so this could be added.
+ - For manual operation, bbchop does not support the same interface as
+   git bisect; the tests need to be run in a separate shell. However,
+   it does support reloading its log, so this could be added. 
 
