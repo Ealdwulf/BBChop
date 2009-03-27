@@ -34,10 +34,12 @@ try:
         os.system("git rev-parse HEAD >$TEST_DIR/__head__")
         where=open(testDir+"/__head__","r").readline().strip()
         where=numbers[where]
-        os.system("echo 'foo' >>$TEST_DIR/tries")
     else:
         where = sys.argv[1]
         where=numbers[where]
+
+    os.system("echo 'foo' >>$TEST_DIR/tries")
+
     
     if t.test(where):
         print "bad"
