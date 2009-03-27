@@ -40,19 +40,6 @@ def union(args):
     return res
     
 
-def filterDupes(aList):
-    aList.sort()
-    uniq=[]
-    dupes=[]
-    prev=None
-    for e in aList:
-        if e==prev:
-            dupes.append(e)
-        else:
-            uniq.append(e)
-        prev=e
-    return (uniq,dupes)
-
 
 # abstract dag class: defines sum,and type functions in terms of comb functions
 class absDag:
