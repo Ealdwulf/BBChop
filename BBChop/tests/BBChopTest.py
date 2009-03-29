@@ -30,7 +30,7 @@ N=10
 prior=[ 1/float(N) for i in range(N)]
 cert=0.9
 
-trials=50
+trials=100
 
 def testChop(likelihoodObj,randomDag,falseNeg,multi):
     tests=0
@@ -68,7 +68,7 @@ def testChop(likelihoodObj,randomDag,falseNeg,multi):
         #   tester.printLocs()
 	
     print "right:",right," out of",trials,tests/trials
-    return (right/trials)<cert
+    return (float(right)/trials)<cert
 
 def testFunc(case):
     print "testing " ,case.likelihoodObj.name(),"randomDag=",case.randomDag
