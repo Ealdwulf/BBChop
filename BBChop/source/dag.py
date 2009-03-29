@@ -180,15 +180,21 @@ class dagX(absDag):
 
         self.children=children
             
+        # a linear stretch ends if a node has multiple children or its child has multiple parents
+        self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in range(N)] 
+        # a linear stretch starts if a node has multiple parents or its parent has multiple children
+        self.linearStart=[len(parents[i])!=1 or len(children[parents[i][0]])!=1 for i in range(N)]
 
         loc=[set([i]) for i in range(N)]
+        empty=[set() for i in range(N)]
+        locE=listCond(self.linearEnd,loc,empty)
+        locS=listCond(self.linearStart,loc,empty)
         
-
-
-
-        # experimental faster alg prep
-        coveredUpto = self.unionUpto(loc)
-        coveredAfter = self.unionAfter(loc)
+        self.multiUpto=self.unionUpto(locE)
+        self.multiUpto=listCond(self.linearStart,self.multiUpto,empty)
+        
+        self.multiAfter=self.unionAfter(locS)
+        self.multiAfter=listCond(self.linearEnd,self.multiAfter,empty)
         
 
 
@@ -200,20 +206,56 @@ class dagX(absDag):
             x.sort()
             return x
 
-        self.uptoExpr = [ self.cseUpto.getExpList(toSortedList(coveredUpto[i])) for i in range(N)]
-        self.AfterExpr = [ self.cseAfter.getExpList(toSortedList(coveredAfter[i])) for i in range(N)]
+        self.uptoExpr = [ self.cseUpto.getExpList(toSortedList(self.multiUpto[i])) for i in range(N)]
+        self.AfterExpr = [ self.cseAfter.getExpList(toSortedList(self.multiAfter[i])) for i in range(N)]
 
 
         print "done"
     # The 'unique' versions of the methods do not assume that the combination function is idempotent. 
         
     def combUptoUnique(self,values,comb):
+
+        linear=self.combUptoLinear(values,comb)
+        linearS=listComb(comb,linear,values)
+        multi=self.combUptoMulti(linearS,comb)
+        linear2=self.combUptoLinear(multi,comb)
+        res=listComb(comb,linear,linear2,multi)
+        return res
+
+    def combAfterUnique(self,values,comb):
+
+        linear=self.combAfterLinear(values,comb)
+        linearS=listComb(comb,linear,values)
+        multi=self.combAfterMulti(linearS,comb)
+        linear2=self.combAfterLinear(multi,comb)
+        res=listComb(comb,linear,linear2,multi)
+        return res
+
+    def combUptoLinear(self,values,comb):
+        res=[comb([])]*len(values)
+
+        for i in range(len(values)):
+            if not self.linearStart[i]:
+                res[i]=comb([comb([values[j],res[j]]) for j in self.parents[i]])
+        return res
+
+
+    def combAfterLinear(self,values,comb):
+        res=[comb([])]*len(values)
+
+        for i in reversed(range(len(values))):
+            if not self.linearEnd[i]:
+                res[i]=comb([comb([values[j],res[j]]) for j in self.children[i]])
+        return res
+
+       
+    def combUptoMulti(self,values,comb):
         
         temp = self.cseUpto.doCalc(values,comb,comb([]))
         res = [temp[self.uptoExpr[i]] for i in range(len(values))]
         return res
 
-    def combAfterUnique(self,values,comb):
+    def combAfterMulti(self,values,comb):
         
         temp = self.cseAfter.doCalc(values,comb,comb([]))
         res = [temp[self.AfterExpr[i]] for i in range(len(values))]
