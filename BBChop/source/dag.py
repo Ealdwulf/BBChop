@@ -18,6 +18,8 @@
 
 from listUtils import listSub,prod,listComb,listCond
 import copy
+import persistentMemo
+import sys
 # class for computing over directed acyclic graphs.
 # values are held outside the graph object, in lists
 
@@ -163,9 +165,10 @@ class CommonSubExpressions:
         return nl[0][loc]
                 
 
-class dag(absDag):
+class dagX(absDag):
     def __init__(self,parents,N):
-
+        print "Analysing DAG structure...",
+        sys.stdout.flush()
         self.parents=parents
         
         children=[[] for i in range(N)]
@@ -201,6 +204,7 @@ class dag(absDag):
         self.AfterExpr = [ self.cseAfter.getExpList(toSortedList(coveredAfter[i])) for i in range(N)]
 
 
+        print "done"
     # The 'unique' versions of the methods do not assume that the combination function is idempotent. 
         
     def combUptoUnique(self,values,comb):
@@ -258,6 +262,7 @@ class dag(absDag):
         sums=listSub(sums,values,sumUpto,sumAfter)
         return sums
 
+dag=persistentMemo.memo(dagX)
 
 # like dag, but assumes linear order
 class listDag(absDag):
