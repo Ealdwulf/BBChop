@@ -69,14 +69,19 @@ def runTests(testFunc,casesFunc):
     #    for (l1,l2,falsePos,falseNeg,maxCount,randomDag) in testTab:
         for case in casesFunc():
             tfail= testFunc(case)
-            fail=fail and tfail 
+            fail=fail or tfail 
+            if fail:
+                print "->FAILED"
+            else:
+                print "->PASSED"
+
     else:
         testNum=int(sys.argv[1])
         testTab=[t for t in  casesFunc()]
         case=testTab[testNum]
         tfail=  testFunc(case)
     
-        fail=fail and tfail 
+        fail=fail or tfail 
     
     
     if fail:
