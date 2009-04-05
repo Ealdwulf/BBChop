@@ -26,6 +26,7 @@ if proc.returncode is None:
     sys.exit(1)
 
 stdout=stdout.rstrip()
+idSet=set()
 for line in stdout.split('\n'):
     
     # chop off any annotation, leaving only what we want
@@ -34,6 +35,7 @@ for line in stdout.split('\n'):
         line=line[:bra]
     idpar=line.split()
     ids.append(idpar[0])
+    idSet.add(idpar[0])
     parents.append(idpar[1:])
 
 
@@ -41,5 +43,5 @@ for line in stdout.split('\n'):
 
 for i in range(len(ids)):
     print ids[i]," ",
-    thispar=[p for p in parents[i] if p in ids]
+    thispar=[p for p in parents[i] if p in idSet]
     print ' '.join(thispar)

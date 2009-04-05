@@ -71,8 +71,9 @@ def testBBChop(rev):
 log=open(testDir + "/log","w")
 
 
-for i in range(N):
+for i in range(1):
     (gitSucc,gitTries)=testGit(i)
+    sysc("rm ~/.memoObjs/*")
     (bbSucc,bbTries)=testBBChop(i)
     res=(identifiers[i],gitSucc,gitTries,bbSucc,bbTries)
     log.write(str(res)+"\n")
