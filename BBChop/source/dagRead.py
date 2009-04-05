@@ -35,8 +35,10 @@
 
 
 
+import copy
 
-
+class coll:
+    pass
 
 
 # depth first seach, for topological sort
@@ -48,16 +50,26 @@ class dfs:
 
         for node in self.dag:
             if node not in self.visited:
-                self.dfsVisit(node)
+                s=coll()
+                s.node=node
+                s.toDo=copy.copy(self.dag[s.node])
+                self.visited[s.node]=1
+                self.dfsVisit([s])
 
 
-    def dfsVisit(self,node):
-        self.visited[node]=1
-        for parent in self.dag[node]:
-            if parent not in self.visited:
-                self.dfsVisit(parent)
+    def dfsVisit(self,stack):
 
-        self.sorted.append(node)
+        while len(stack)>0:
+            while len(stack[-1].toDo)>0:
+                parent=stack[-1].toDo.pop(0)
+                if parent not in self.visited:
+                    s=coll()
+                    s.node=parent
+                    s.toDo=copy.copy(self.dag[s.node])
+                    self.visited[s.node]=1                    
+                    stack.append(s)
+            self.sorted.append(stack[-1].node)
+            stack.pop()
 
 
 
