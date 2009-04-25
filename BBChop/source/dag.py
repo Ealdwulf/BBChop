@@ -17,8 +17,8 @@
 
 
 from listUtils import listSub,prod,listComb,listCond
-import copy
 import persistentMemo
+import cse
 import sys
 # class for computing over directed acyclic graphs.
 # values are held outside the graph object, in lists
@@ -90,79 +90,8 @@ def findCover(soFar,covered,node,parents):
     return (ret,soFar)
         
 
-class CommonSubExpressions:
-    def __init__(self,numVals):
-        self.numVals=numVals
-        self.subExps=[None]*numVals
-        self.soFar={}
-
-    def doCalc(self,values,comb,nil):
-        if len(values)!=self.numVals:
-            raise "initialised woth incorrect value length"
-
-        temp=copy.copy(values)
-
-        for i in range(self.numVals,len(self.subExps)):
-            if self.subExps[i] is None:
-                temp.append(values[i])
-            elif self.subExps[i] is -1:
-                temp.append(nil)
-            else:
-                (a,b)=self.subExps[i]
-                temp.append(comb([temp[a],temp[b]]))
-        return temp
-
-
-    def getExp(self,a,b):
-        x=[a,b]
-        x.sort()
-        x=tuple(x)
-        return self.findExp(x)
-
-    def findExp(self,x):
-        if x in self.soFar:
-            return self.soFar[x]
-        else:
-            ret=len(self.subExps)
-            self.subExps.append(x)
-            self.soFar[x]=ret
-            return ret
-
-    def getNil(self):
-        return self.findExp(-1)
-
 
     
-    def getExpList(self,l):
-        if len(l)==0:
-            return self.getNil()
-
-
-        virt=0
-        loc=1
-
-        nl=[(i,i) for i in l]
-
-        while len(nl)>1:
-            next=[]
-            while len(nl)>1:
-                a=nl[0]
-                b=nl[1]
-                if  (a[virt]+1) == b[virt] and not (a[virt]&1):
-                    next.append((a[virt]/2,self.getExp(a[loc],b[loc])))
-                    nl.pop(0)
-                    nl.pop(0)
-                else:
-                    next.append((a[virt]/2,a[loc]))
-                    nl.pop(0)
-            while len(nl)>0:
-                a=nl[0]
-                next.append((a[virt]/2,a[loc]))
-                nl.pop(0)
-                
-                                
-            nl=next
-        return nl[0][loc]
                 
 
 class dagX(absDag):
@@ -198,16 +127,16 @@ class dagX(absDag):
         
 
 
-        self.cseUpto = CommonSubExpressions(N)
-        self.cseAfter = CommonSubExpressions(N)
+        self.cseUpto = cse.CommonSubExpressions(N)
+        self.cseAfter = cse.CommonSubExpressions(N)
         
         def toSortedList(x):
             x=list(x)
             x.sort()
             return x
 
-        self.uptoExpr = [ self.cseUpto.getExpList(toSortedList(self.multiUpto[i])) for i in range(N)]
-        self.AfterExpr = [ self.cseAfter.getExpList(toSortedList(self.multiAfter[i])) for i in range(N)]
+        self.uptoExpr =  self.cseUpto.getExpList(self.multiUpto) 
+        self.AfterExpr = self.cseAfter.getExpList(self.multiAfter)
 
 
         print "done"
@@ -251,14 +180,14 @@ class dagX(absDag):
        
     def combUptoMulti(self,values,comb):
         
-        temp = self.cseUpto.doCalc(values,comb,comb([]))
-        res = [temp[self.uptoExpr[i]] for i in range(len(values))]
+        res = self.uptoExpr.doCalc(values,comb,comb([]))
+
         return res
 
     def combAfterMulti(self,values,comb):
         
-        temp = self.cseAfter.doCalc(values,comb,comb([]))
-        res = [temp[self.AfterExpr[i]] for i in range(len(values))]
+        res = self.AfterExpr.doCalc(values,comb,comb([]))
+
         return res
 
 
