@@ -19,7 +19,8 @@ TESTS = \
 	BBChopTest.test \
 	entropiesTest.test \
 	testdag.test \
-	testDagRead.test
+	testDagRead.test \
+	cseTest.test
 
 
 all: $(TESTS)
