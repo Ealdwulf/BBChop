@@ -18,6 +18,7 @@
 
 
 import copy
+from collections import deque
 
 class CommonSubExpressions:
 
@@ -101,24 +102,24 @@ class CommonSubExpressions:
         virt=0
         loc=1
 
-        nl=[(i,i) for i in l]
+        nl=deque([(i,i) for i in l])
 
         while len(nl)>1:
-            next=[]
+            next=deque([])
             while len(nl)>1:
                 a=nl[0]
                 b=nl[1]
                 if  (a[virt]+1) == b[virt] and not (a[virt]&1):
                     next.append((a[virt]/2,self.getBinaryExp(a[loc],b[loc])))
-                    nl.pop(0)
-                    nl.pop(0)
+                    nl.popleft()
+                    nl.popleft()
                 else:
                     next.append((a[virt]/2,a[loc]))
-                    nl.pop(0)
+                    nl.popleft()
             while len(nl)>0:
                 a=nl[0]
                 next.append((a[virt]/2,a[loc]))
-                nl.pop(0)
+                nl.popleft()
                 
                                 
             nl=next
