@@ -91,8 +91,8 @@ class BBChop:
     def __init__(self,locPrior,certainty,interactor,likelihoodsObj,dag,strategy=greedyStrat):
 
         
-        self.locPrior=copy.copy(locPrior)
-        self.certainty=certainty
+        self.locPrior=numbers.copyList(locPrior)
+        self.certainty=numbers.const(certainty)
         self.counts=[(0,0) for p in locPrior]
         self.interactor=interactor
         self.total=0

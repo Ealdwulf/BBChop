@@ -55,24 +55,24 @@ def entropies(counts,locPrior,likelihoodsObj,dag):
             (probsIfFound,evDProb)=likelihoodsObj.probs(testFound,locPrior,dag)
             eFound=entropyFunc(probsIfFound)
         except Impossible:
-            eFound=0.0
-            evDProb=0.0
+            eFound=numbers.zero
+            evDProb=numbers.zero
         
         try:
             (probsIfNotFound,junk)=likelihoodsObj.probs(testNotFound,locPrior,dag)
             eNotFound=entropyFunc(probsIfNotFound)
         except Impossible:
-            eNotFound=0.0
+            eNotFound=numbers.zero
         
         # probability of finding at i:
         
-        findProb=float(evDProb/evProb)
+        findProb=evDProb/evProb
         findProbs.append(findProb)
         if debug: print "a",eFound,eNotFound,evDProb,probsIfFound
         
         # expected entropy after testing at i:
         
-        eResult=eFound*findProb+eNotFound*(1-findProb)
+        eResult=eFound*findProb+eNotFound*(numbers.const(1)-findProb)
         
         entropyResults.append(eResult)
 
@@ -84,7 +84,8 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
 
 #    d=dag.linearTestDag(len(locPrior))
 
-    renyiFactor=1.0/(1.0-entropy.alpha)
+    one=numbers.const(1.0)
+    renyiFactor=one/(one-entropy.alpha)
 
     lk=likelihoodsObj.calc(counts,locPrior,entropy.alpha,d)
 
@@ -105,9 +106,9 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
             eFound=renyLksFoundTot/numbers.pow(evDProb,entropy.alpha)
             
             eFound=numbers.log(eFound)*renyiFactor
-        except ZeroDivisionError:
+        except numbers.zeroDivisionError:
             eFound=0
-        except OverflowError:
+        except numbers.overflowError:
             eFound=0
 
 
@@ -115,9 +116,9 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
         try:
             eNotFound=renyLksNFoundTot/numbers.pow(NfoundNorm,entropy.alpha)            
             eNotFound=numbers.log(eNotFound)*renyiFactor
-        except ZeroDivisionError:
+        except numbers.zeroDivisionError:
             eNotFound=0
-        except OverflowError:
+        except numbers.overflowError:
             eNotFound=0
 
         # expected entropy after testing at i:

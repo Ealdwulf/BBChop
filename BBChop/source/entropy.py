@@ -29,8 +29,8 @@ alpha=numbers.const('1.2')
 
 def renyi(probs):
     e=0
-    
-    d=1.0/(1.0-alpha)
+    one=numbers.const(1.0)
+    d=one/(one-alpha)
     for p in probs:
         e=e+numbers.pow(p,alpha)
     return numbers.log(e)*d

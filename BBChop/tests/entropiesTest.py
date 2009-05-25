@@ -19,10 +19,11 @@ import random
 
 import dag
 import testCases
+import numbers
 
-epsilon=0.000000001
+epsilon=numbers.const(0.000000001)
 epCoeff=1+epsilon
-epDelta=0.00000000000001
+epDelta=numbers.const(0.00000000000001)
 
 
 

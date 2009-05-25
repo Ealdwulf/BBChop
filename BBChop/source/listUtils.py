@@ -16,6 +16,7 @@
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
 import operator
+import numbers
 # returns (index,min)
 def findMin(alist):
     p=1000000000000
@@ -50,7 +51,7 @@ listSub=lambda *vals: listComb1(operator.sub,sum,*vals)
 
 
 def prod(l):
-    return reduce(operator.mul,l,1.0)
+    return reduce(operator.mul,l,numbers.const(1.0))
 
 listAnd=lambda *vals: listComb(all,*vals)
 listOr =lambda *vals: listComb(any,*vals)

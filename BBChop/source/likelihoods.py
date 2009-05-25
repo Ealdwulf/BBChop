@@ -33,7 +33,7 @@ Zero=False
 
 def g(pred,Ti,Di,Lprior):
     if(pred):
-        return 0
+        return numbers.zero
     else:
         return Beta(Di+1,Ti+1)*Lprior
     
@@ -45,7 +45,7 @@ def probsFromLikelihoods(likelihoods,likelihoodTot):
         raise Impossible
     
     for li in likelihoods :
-        probs.append(float(li/likelihoodTot))
+        probs.append(li/likelihoodTot)
     return probs
         
 # returns a posteriori P(L|E) and a priori P(E) (that is, P(E|L) marginalised over L)
@@ -112,7 +112,7 @@ def singleRate(counts,locPrior,dag):
 
 def gMulti(pred,beta,Lprior):
     if pred:
-        return 0
+        return numbers.zero
     else:
         return beta*Lprior
 
@@ -297,13 +297,13 @@ class singleRateCalcX(likelihoodCalc):
 
     def contribOther(self,renyi,whichDat):
         if whichDat==cFound:
-            return [0 for i in self.counts]  # if found at i, cannot be 'other to' i as we assume no false positives.
+            return [numbers.zero for i in self.counts]  # if found at i, cannot be 'other to' i as we assume no false positives.
         else:
             return self.dag.sumOther(self.likelihoodDat[renyi][cOrig])
 
     def contribAfter(self,renyi,whichDat):
         if whichDat==cFound:
-            return [0 for i in self.counts]  # if found at i, cannot be after i as we assume no false positives.
+            return [numbers.zero for i in self.counts]  # if found at i, cannot be after i as we assume no false positives.
         else:
             return self.dag.sumAfter(self.likelihoodDat[renyi][cOrig])
 
@@ -342,7 +342,7 @@ class multiRateCalcX(likelihoodCalc):
 
             
     def contribSelf(self,renyi,whichDat):
-        return [0 for i in self.counts] # 'self' contrib included in 'upto'
+        return [numbers.zero for i in self.counts] # 'self' contrib included in 'upto'
 
     def contribUpto(self,renyi,whichDat):
         return listMul(self.uptoBetas[renyi],self.betasDat[renyi][whichDat])
@@ -350,13 +350,13 @@ class multiRateCalcX(likelihoodCalc):
 
     def contribOther(self,renyi,whichDat):
         if whichDat==cFound:
-            return [0 for i in self.counts]
+            return [numbers.zero for i in self.counts]
         else:
             return self.dag.sumOther(self.likelihoodDat[renyi])
 
     def contribAfter(self,renyi,whichDat):
         if whichDat==cFound:
-            return [0 for i in self.counts]
+            return [numbers.zero for i in self.counts]
         else:
             return self.dag.sumAfter(self.likelihoodDat[renyi])
 
@@ -427,7 +427,7 @@ class deterministicCalcX(likelihoodCalc):
 
             # rounding error can cause this to be negative, zero to avoid upsetting math.log()
             c=[o<0 for o in other]
-            zero=[0 for o in other]
+            zero=[numbers.zero for o in other]
             other=listCond(c,zero,other)
             return other
 

@@ -19,8 +19,11 @@
 
 #numberType = 'float'
 numberType = 'mpmath'
+#numberType = 'Decimal'
 
 import math
+import copy
+
 
 
 if numberType == 'mpmath':
@@ -31,6 +34,11 @@ if numberType == 'mpmath':
         return mpmath.mpf(str)
 
     power=mpmath.power
+    log=math.log
+    exp=math.exp
+    copyList=copy.copy
+    zeroDivisionError=ZeroDivisionError
+    overflowError=OverflowError
 
 elif numberType == 'float':
     
@@ -38,16 +46,42 @@ elif numberType == 'float':
         return float(str)
     
     power=math.pow
+    log=math.log
+    exp=math.exp
+    copyList=copy.copy
+    zeroDivisionError=ZeroDivisionError
+    overflowError=OverflowError
+
+elif numberType == 'Decimal':
+    import decimal
+    c=decimal.getcontext()
+    c.prec=60
+
+    def const(x):
+        return decimal.Decimal(str(x))
+
+    def power(a,b):
+        return a**b
+
+    def log(x):
+        return const(math.log(x))
+
+    def exp(x):
+        return const(math.exp(x))
+
+    def copyList(l):
+        return [const(x) for x in l]
+
+    zeroDivisionError=ZeroDivisionError
+    overflowError=decimal.InvalidOperation
+
+
+
 
 else:
     raise "numberType set incorrectly\n"
 
 
-def log(x):
-    return math.log(x)
-
-def exp(x):
-    return math.exp(x)
 
 def pow(a,b):
     if a==0:
@@ -55,3 +89,4 @@ def pow(a,b):
     else:
         return power(a,b)
 
+zero=const(0)
