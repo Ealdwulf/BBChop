@@ -32,19 +32,22 @@ class timer:
     def __init__(self,filename):
         self.log=open(filename,"w")
         self.times=[]
+        self.currTimes=[]
 
     def run(self,fn,args):
         s=time.time()
         res=fn(*args)
         timeDelta=time.time()-s
-        self.times.append(str(timeDelta))
+        self.currTimes.append(str(timeDelta))
         return res
 
     def startSet(self,heading):
         self.heading=heading
 
     def write(self,sep):
-        out=self.heading + sep+sep.join(self.times)+"\n"
+        out=self.heading + sep+sep.join(self.currTimes)+"\n"
+        self.times.append(self.currTimes)
+        self.currTimes=[]
         self.log.write(out)
     
     def close(self):
@@ -76,10 +79,10 @@ class profiler:
         pass
 
 
-runner=profiler("profiles/master")
-runner=timer("tlog-master-4b")
+#runner=profiler("profiles/master")
+runner=timer("tlog-master-mpmath")
 
-for i in [1]: #range(1,10):
+for i in range(1,10):
     fname="rc"+str(i)+".anc"
 
     f=file(fname,"r")
