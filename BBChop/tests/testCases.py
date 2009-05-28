@@ -22,7 +22,7 @@ import random
 import randomdag
 import dag
 from listUtils import cond,listOr
-import numbers
+import numberType
 
 class struct:
     def __init__(self,**kwargs):
@@ -125,7 +125,7 @@ def randomEntropyData(seed,N,dag,falsePos=False,falseNeg=False,maxCount=10):
 
     UlocPrior=[random.random() for x in range(N)]
     norm=sum(UlocPrior)
-    locPrior=[numbers.const(i/norm) for i in UlocPrior]
+    locPrior=[numberType.const(i/norm) for i in UlocPrior]
     
     return (counts,locPrior)
 

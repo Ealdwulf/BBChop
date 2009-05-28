@@ -15,22 +15,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-import numbers
+import numberType
 def shannon(probs):
     e=0
     for p in probs:
         if(p>0):
-            e-=p*numbers.log(p)
+            e-=p*numberType.log(p)
     return e
 
 
 
-alpha=numbers.const('1.2')
+alpha=numberType.const('1.2')
 
 def renyi(probs):
     e=0
-    one=numbers.const(1.0)
+    one=numberType.const(1.0)
     d=one/(one-alpha)
     for p in probs:
-        e=e+numbers.pow(p,alpha)
-    return numbers.log(e)*d
+        e=e+numberType.pow(p,alpha)
+    return numberType.log(e)*d

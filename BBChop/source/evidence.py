@@ -17,7 +17,7 @@
 
 import copy
 import entropy
-import numbers
+import numberType
 import dag
 from miscMath import powList
 from likelihoods import Impossible
@@ -55,14 +55,14 @@ def entropies(counts,locPrior,likelihoodsObj,dag):
             (probsIfFound,evDProb)=likelihoodsObj.probs(testFound,locPrior,dag)
             eFound=entropyFunc(probsIfFound)
         except Impossible:
-            eFound=numbers.zero
-            evDProb=numbers.zero
+            eFound=numberType.zero
+            evDProb=numberType.zero
         
         try:
             (probsIfNotFound,junk)=likelihoodsObj.probs(testNotFound,locPrior,dag)
             eNotFound=entropyFunc(probsIfNotFound)
         except Impossible:
-            eNotFound=numbers.zero
+            eNotFound=numberType.zero
         
         # probability of finding at i:
         
@@ -72,7 +72,7 @@ def entropies(counts,locPrior,likelihoodsObj,dag):
         
         # expected entropy after testing at i:
         
-        eResult=eFound*findProb+eNotFound*(numbers.const(1)-findProb)
+        eResult=eFound*findProb+eNotFound*(numberType.const(1)-findProb)
         
         entropyResults.append(eResult)
 
@@ -84,14 +84,14 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
 
 #    d=dag.linearTestDag(len(locPrior))
 
-    one=numbers.const(1.0)
+    one=numberType.const(1.0)
     renyiFactor=one/(one-entropy.alpha)
 
     lk=likelihoodsObj.calc(counts,locPrior,entropy.alpha,d)
 
     (rsum,osum)=lk.orig()
-    currEntropy=rsum/numbers.pow(osum,entropy.alpha)
-    currEntropy =numbers.log(currEntropy)*renyiFactor
+    currEntropy=rsum/numberType.pow(osum,entropy.alpha)
+    currEntropy =numberType.log(currEntropy)*renyiFactor
     
     entropyResults=[]
     findProbs=[]
@@ -103,22 +103,22 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
         findProbs.append(findProb)
         #entropyFound:normalise
         try: 
-            eFound=renyLksFoundTot/numbers.pow(evDProb,entropy.alpha)
+            eFound=renyLksFoundTot/numberType.pow(evDProb,entropy.alpha)
             
-            eFound=numbers.log(eFound)*renyiFactor
-        except numbers.zeroDivisionError:
+            eFound=numberType.log(eFound)*renyiFactor
+        except numberType.zeroDivisionError:
             eFound=0
-        except numbers.overflowError:
+        except numberType.overflowError:
             eFound=0
 
 
         #entropyNotFound:normalise
         try:
-            eNotFound=renyLksNFoundTot/numbers.pow(NfoundNorm,entropy.alpha)            
-            eNotFound=numbers.log(eNotFound)*renyiFactor
-        except numbers.zeroDivisionError:
+            eNotFound=renyLksNFoundTot/numberType.pow(NfoundNorm,entropy.alpha)            
+            eNotFound=numberType.log(eNotFound)*renyiFactor
+        except numberType.zeroDivisionError:
             eNotFound=0
-        except numbers.overflowError:
+        except numberType.overflowError:
             eNotFound=0
 
         # expected entropy after testing at i:

@@ -17,7 +17,7 @@
 
 from listUtils import *
 from evidence import entropiesFast 
-import numbers
+import numberType
 import copy
 #import plot
 
@@ -91,8 +91,8 @@ class BBChop:
     def __init__(self,locPrior,certainty,interactor,likelihoodsObj,dag,strategy=greedyStrat):
 
         
-        self.locPrior=numbers.copyList(locPrior)
-        self.certainty=numbers.const(certainty)
+        self.locPrior=numberType.copyList(locPrior)
+        self.certainty=numberType.const(certainty)
         self.counts=[(0,0) for p in locPrior]
         self.interactor=interactor
         self.total=0
@@ -113,7 +113,7 @@ class BBChop:
         
         # 'None' means we've decided that this location is invalid (eg, won't compile)
         if observation is None:
-            self.locPrior[location]=numbers.const(0)            
+            self.locPrior[location]=numberType.const(0)            
         elif observation is True:
             self.counts[location]=(t,d+1)
         else:

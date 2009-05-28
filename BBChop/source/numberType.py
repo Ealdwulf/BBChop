@@ -18,8 +18,8 @@
 # define what kind of number object to use
 
 #numberType = 'float'
-numberType = 'mpmath'
-#numberType = 'Decimal'
+#numberType = 'mpmath'
+numberType = 'Decimal'
 
 import math
 import copy

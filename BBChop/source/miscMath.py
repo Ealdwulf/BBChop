@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-import numbers
+import numberType
 
 # standard beta function
 
@@ -26,7 +26,7 @@ useLogFact=1
 
 # log-space version
 def BetaX(x,y):
-    return numbers.exp(logGamma(x)+logGamma(y)-logGamma(x+y))
+    return numberType.exp(logGamma(x)+logGamma(y)-logGamma(x+y))
 
 # dumb version (subexpressions are huge)
 def BetaY(x,y):
@@ -59,7 +59,7 @@ def logGamma(x):
 
 # standard factorial function
 
-factMemo=[numbers.const('1')]
+factMemo=[numberType.const('1')]
 
 # standard factorial function
 def fact(x):
@@ -69,11 +69,11 @@ def fact(x):
 
 # log-factorial function
 
-logFactMemo=[numbers.const('0')]
+logFactMemo=[numberType.const('0')]
 
 def logFact(x):
     while(x>=len(logFactMemo)):
-        logFactMemo.append(logFactMemo[-1]+numbers.log(len(logFactMemo)))
+        logFactMemo.append(logFactMemo[-1]+numberType.log(len(logFactMemo)))
     return logFactMemo[x]
 
 
@@ -86,7 +86,7 @@ def binD(k,n,p):
     return nD(k,n,p)*float(choice(n,k))
 
 def nD(k,n,p):
-    return numbers.pow(p,k)*numbers.pow(1-p,n-k)
+    return numberType.pow(p,k)*numberType.pow(1-p,n-k)
 
 def pe(f,ds,ts,r,i):
     dx=sum(ds[:i])
@@ -106,4 +106,4 @@ def t1(f,ds,ts,r):
     
 
 def powList(l,p):
-    return [numbers.pow(x,p) for x in l]
+    return [numberType.pow(x,p) for x in l]

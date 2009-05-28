@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-import numbers
+import numberType
 from miscMath import Beta,fact,choice,powList
 from listUtils import *
 
@@ -33,7 +33,7 @@ Zero=False
 
 def g(pred,Ti,Di,Lprior):
     if(pred):
-        return numbers.zero
+        return numberType.zero
     else:
         return Beta(Di+1,Ti+1)*Lprior
     
@@ -112,7 +112,7 @@ def singleRate(counts,locPrior,dag):
 
 def gMulti(pred,beta,Lprior):
     if pred:
-        return numbers.zero
+        return numberType.zero
     else:
         return beta*Lprior
 
@@ -297,13 +297,13 @@ class singleRateCalcX(likelihoodCalc):
 
     def contribOther(self,renyi,whichDat):
         if whichDat==cFound:
-            return [numbers.zero for i in self.counts]  # if found at i, cannot be 'other to' i as we assume no false positives.
+            return [numberType.zero for i in self.counts]  # if found at i, cannot be 'other to' i as we assume no false positives.
         else:
             return self.dag.sumOther(self.likelihoodDat[renyi][cOrig])
 
     def contribAfter(self,renyi,whichDat):
         if whichDat==cFound:
-            return [numbers.zero for i in self.counts]  # if found at i, cannot be after i as we assume no false positives.
+            return [numberType.zero for i in self.counts]  # if found at i, cannot be after i as we assume no false positives.
         else:
             return self.dag.sumAfter(self.likelihoodDat[renyi][cOrig])
 
@@ -342,7 +342,7 @@ class multiRateCalcX(likelihoodCalc):
 
             
     def contribSelf(self,renyi,whichDat):
-        return [numbers.zero for i in self.counts] # 'self' contrib included in 'upto'
+        return [numberType.zero for i in self.counts] # 'self' contrib included in 'upto'
 
     def contribUpto(self,renyi,whichDat):
         return listMul(self.uptoBetas[renyi],self.betasDat[renyi][whichDat])
@@ -350,13 +350,13 @@ class multiRateCalcX(likelihoodCalc):
 
     def contribOther(self,renyi,whichDat):
         if whichDat==cFound:
-            return [numbers.zero for i in self.counts]
+            return [numberType.zero for i in self.counts]
         else:
             return self.dag.sumOther(self.likelihoodDat[renyi])
 
     def contribAfter(self,renyi,whichDat):
         if whichDat==cFound:
-            return [numbers.zero for i in self.counts]
+            return [numberType.zero for i in self.counts]
         else:
             return self.dag.sumAfter(self.likelihoodDat[renyi])
 
@@ -427,7 +427,7 @@ class deterministicCalcX(likelihoodCalc):
 
             # rounding error can cause this to be negative, zero to avoid upsetting math.log()
             c=[o<0 for o in other]
-            zero=[numbers.zero for o in other]
+            zero=[numberType.zero for o in other]
             other=listCond(c,zero,other)
             return other
 

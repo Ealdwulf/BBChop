@@ -18,7 +18,7 @@ Only casual testing so far:
 Doesn't need much testing:
   entropy.py   - Derived from standard references
   miscMath.py  - Derived from standard references, except test-only functions 
-  numbers.py   - is a simple wrapper
+  numberType.py   - is a simple wrapper
 
 
 
