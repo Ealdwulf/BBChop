@@ -17,9 +17,17 @@
 
 # define what kind of number object to use
 
+
+# use mpmath if available, because it's 10x faster than decimal.
+try:
+    import mpmath
+    numberType = 'mpmath'
+except ImportError:
+    import decimal    
+    numberType = 'Decimal'
+
+
 #numberType = 'float'
-#numberType = 'mpmath'
-numberType = 'Decimal'
 
 import math
 import copy
@@ -27,7 +35,6 @@ import copy
 
 
 if numberType == 'mpmath':
-    import mpmath
     mpmath.mp.prec=200
 
     def const(str):
@@ -53,7 +60,6 @@ elif numberType == 'float':
     overflowError=OverflowError
 
 elif numberType == 'Decimal':
-    import decimal
     c=decimal.getcontext()
     c.prec=60
 
