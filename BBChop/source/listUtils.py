@@ -37,12 +37,12 @@ def findMax(alist):
     return (w,p)
 
 def listComb(comb,*args):
-    r=range(len(args[0]))
+    r=xrange(len(args[0]))
     
     return [comb([arg[i] for arg in args]) for i in r]
 
 def listComb1(op,comb,first,*args):
-    r=range(len(args[0]))
+    r=xrange(len(args[0]))
     
     return [op(first[i],comb([arg[i] for arg in args])) for i in r]
 
@@ -67,4 +67,4 @@ def cond(c,a,b):
         return b
 
 def listCond(c,a,b):
-    return [cond(c[i],a[i],b[i]) for i in range(len(c))]
+    return [cond(c[i],a[i],b[i]) for i in xrange(len(c))]

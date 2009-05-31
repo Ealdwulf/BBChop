@@ -42,7 +42,7 @@ class CommonSubExpressions:
 
         temp=copy.copy(values)
 
-        for i in range(self.numVals,len(self.subExps)):
+        for i in xrange(self.numVals,len(self.subExps)):
             if self.subExps[i] is None:
                 temp.append(values[i])
             elif self.subExps[i] is -1:
@@ -130,7 +130,7 @@ class CommonSubExpressions:
     # given a list of expressions, return an object which can calculate them
 
     def getExpList(self,expList):
-        return expListCalc([ self.getExp(toSortedList(expList[i])) for i in range(len(expList))],self)
+        return expListCalc([ self.getExp(toSortedList(expList[i])) for i in xrange(len(expList))],self)
 
 
 # This object holds the locations of the wanted expressions in the temporary
@@ -149,7 +149,7 @@ class expListCalc:
 
     def doCalc(self,values,comb,nil):
         temp=self.cse.doCalc(values,comb,nil)
-        res = [temp[self.expList[i]] for i in range(len(self.expList))]
+        res = [temp[self.expList[i]] for i in xrange(len(self.expList))]
         return res
         
 

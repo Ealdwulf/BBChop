@@ -55,7 +55,7 @@ def greedyStrat(counts,locPrior,likelihoodsObj,dag):
 # would be expected to improve next gain in entropy.
 
 def nearlyGreedyStrat(counts,locPrior,likelihoodsObj,dag):
-    dlocs=[i for i in range(len(counts)) if counts[i][1]]
+    dlocs=[i for i in xrange(len(counts)) if counts[i][1]]
     (currEntropy,entropyResults,findProbs)=entropiesFast(counts,locPrior,likelihoodsObj,dag)
     (next,nextE)=findMin(entropyResults)
     if len(dlocs):

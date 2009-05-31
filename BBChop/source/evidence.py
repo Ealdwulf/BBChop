@@ -43,7 +43,7 @@ def entropies(counts,locPrior,likelihoodsObj,dag):
 
     if debug: print "ac",counts
 
-    for i in range(len(locProbs)):
+    for i in xrange(len(locProbs)):
         testFound=copy.copy(counts)
         testNotFound=copy.copy(counts)
         
@@ -97,7 +97,7 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
     findProbs=[]
 
 
-    for i in range(len(locPrior)): 
+    for i in xrange(len(locPrior)): 
 
         (findProb,renyLksFoundTot,renyLksNFoundTot,evDProb,NfoundNorm)=lk[i]
         findProbs.append(findProb)
