@@ -19,6 +19,7 @@ from listUtils import *
 from evidence import entropiesFast 
 import numberType
 import copy
+import skipProbability
 #import plot
 
 debug=False
@@ -43,18 +44,20 @@ debug=False
 # for the next observation is highest, ie, the expected entropy after the 
 #next observation is smallest.
 
-def greedyStrat(counts,locPrior,likelihoodsObj,dag):
+def greedyStrat(counts,locPrior,likelihoodsObj,dag,skipProbs):
     (currEntropy,entropyResults,findProbs)=entropiesFast(counts,locPrior,likelihoodsObj,dag)
     # test where expected entropy is smallest
-            
-    (next,nextp)=findMin(entropyResults)
+    
+    expectedGain = [(currEntropy-entropyResults[i])*(numberType.one-skipProbs[i]) for
+                    i in xrange(len(entropyResults))]
+    (next,nextp)=findMax(expectedGain)
 
     return next
 
 # nearly greedy strategy: like greedy, but if we have a detection, see if observinf there again
 # would be expected to improve next gain in entropy.
 
-def nearlyGreedyStrat(counts,locPrior,likelihoodsObj,dag):
+def nearlyGreedyStrat(counts,locPrior,likelihoodsObj,dag,skipProbs):
     dlocs=[i for i in xrange(len(counts)) if counts[i][1]]
     (currEntropy,entropyResults,findProbs)=entropiesFast(counts,locPrior,likelihoodsObj,dag)
     (next,nextE)=findMin(entropyResults)
@@ -85,23 +88,32 @@ def nearlyGreedyStrat(counts,locPrior,likelihoodsObj,dag):
     
 
 
-
-
 class BBChop:
-    def __init__(self,locPrior,certainty,interactor,likelihoodsObj,dag,strategy=greedyStrat):
+    def __init__(self,
+                 locPrior,
+                 certainty,
+                 interactor,
+                 likelihoodsObj,
+                 dag,
+                 strategy=greedyStrat,
+                 skipProbsFunc=skipProbability.skipProbsSimple):
 
         
         self.locPrior=numberType.copyList(locPrior)
         self.certainty=numberType.const(certainty)
         self.counts=[(0,0) for p in locPrior]
+        self.skipProbsFunc=skipProbsFunc
+        self.skipped=[False for p in locPrior]
+        self.dag=dag
+        self.skipProbs = self.skipProbsFunc(self.skipped,self.dag)
         self.interactor=interactor
         self.total=0
         self.likelihoodsObj=likelihoodsObj
-        self.dag=dag
         self.strategy=strategy
 
 
-    def addPriorKnowlege(self,positives,negatives):
+    def addPriorKnowlege(self,knowlege):
+        (positives,negatives)=knowlege
         (t,d)=self.counts[-1]
         t+=negatives
         d+=positives
@@ -113,7 +125,15 @@ class BBChop:
         
         # 'None' means we've decided that this location is invalid (eg, won't compile)
         if observation is None:
-            self.locPrior[location]=numberType.const(0)            
+            self.skipped[location]=True
+
+            # set prior to zero because otherwise termination probability 
+            # cannot always be achieved. This means that 
+            # the probabilities we calculate are conditional on the bug not being located 
+            # at a skipped location.
+
+            self.locPrior[location]=numberType.zero
+            self.skipProbs = self.skipProbsFunc(self.skipped,self.dag)
         elif observation is True:
             self.counts[location]=(t,d+1)
         else:
@@ -135,8 +155,12 @@ class BBChop:
 
             self.interactor.statusCallback(False,whereabouts,maxp,locProbs,self.counts)
                 
-            next=self.strategy(self.counts,self.locPrior,self.likelihoodsObj,self.dag)
-
+            next=self.strategy(self.counts,
+                               self.locPrior,
+                               self.likelihoodsObj,
+                               self.dag,
+                               self.skipProbs)
+                               
 
             observation=self.interactor.test(next)
             self.total+=1

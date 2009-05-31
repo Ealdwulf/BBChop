@@ -120,123 +120,162 @@ def getPrior(fname,N):
     
 
     
+class Args:        
+
+    def __init__(self):
+        self.testscript=None
+        self.positives=0
+        self.negatives=0
+        self.locations=None
+        self.certainty=None
+        self.identifiers=None
+        self.resume=False
+        self.likelihoodCalc="singlerate"
+        self.logFileName=None
+        self.switchScript=None
         
+        ancestryFilename=None
+        identifiersFilename=None
+        distPriorFilename=None
 
-def parseArgs():
-    testscript=None
-    positives=0
-    negatives=0
-    locations=None
-    ancestryFilename=None
-    certainty=None
-    identifiersFilename=None
-    identifiers=None
-    distPriorFilename=None
-    resume=False
-    likelihoodCalc="singlerate"
-    logFileName=None
-    switchScript=None
-    
-    try:
-        (opts,rest) = getopt.gnu_getopt(sys.argv[1:],options,options_long)
-    except getopt.GetoptError:
-        usage()
-        sys.exit(1)
-
-
-
-
-    for (o,a) in opts:
-        if o in ['-l','--locations']:
-            locations=a
-        elif o in ['-a','--ancestry']:
-            ancestryFilename=a
-        elif o in ['-c','--certainty']:
-            certainty=a
-        elif o in ['-p','--positives']:
-            positives=a
-        elif o in ['-n','--negatives']:
-            negatives=a
-        elif o in ['-t','--testscript']:
-            testscript=a
-        elif o in ['-k','--likelihood']:
-            likelihoodCalc=a
-        elif o in ['-i','--identifiers']:
-            identifiersFilename=a
-        elif o in ['-d','--distprior']:
-             distPriorFilename=a
-        elif o in ['-r','--resume']:
-            resume=True
-        elif o in ['-s','--switchscript']:
-            switchScript=a
-        elif o in ['-g','--log']:
-            logFileName=a
-        
-
-
-    locations=checkarg(locations,int)
-    certainty=checkarg(certainty,float)
-    negatives=checkarg(negatives,int)
-    positives=checkarg(positives,int)
-
-
-
-    if identifiersFilename is not None:
-        if ancestryFilename is not None:
-            print "specification of ancestry and indentifiers are incompatible"
-            print "(identifiers are in ancestry file anyway)"
+        try:
+            (opts,rest) = getopt.gnu_getopt(sys.argv[1:],options,options_long)
+        except getopt.GetoptError:
+            usage()
             sys.exit(1)
-        identifiers=getIdentifiers(identifiersFilename)
-        if identifiers is None:
-            print "failed to read identifiers\n"
+    
+    
+    
+    
+        for (o,a) in opts:
+            if o in ['-l','--locations']:
+                self.locations=a
+            elif o in ['-a','--ancestry']:
+                ancestryFilename=a
+            elif o in ['-c','--certainty']:
+                self.certainty=a
+            elif o in ['-p','--positives']:
+                self.positives=a
+            elif o in ['-n','--negatives']:
+                self.negatives=a
+            elif o in ['-t','--testscript']:
+                self.testscript=a
+            elif o in ['-k','--likelihood']:
+                self.likelihoodCalc=a
+            elif o in ['-i','--identifiers']:
+                identifiersFilename=a
+            elif o in ['-d','--distprior']:
+                 distPriorFilename=a
+            elif o in ['-r','--resume']:
+                self.resume=True
+            elif o in ['-s','--switchscript']:
+                self.switchScript=a
+            elif o in ['-g','--log']:
+                self.logFileName=a
+            
+    
+    
+        self.locations=checkarg(self.locations,int)
+        self.certainty=checkarg(self.certainty,float)
+        self.negatives=checkarg(self.negatives,int)
+        self.positives=checkarg(self.positives,int)
+    
+    
+    
+        if identifiersFilename is not None:
+            if ancestryFilename is not None:
+                print "specification of ancestry and indentifiers are incompatible"
+                print "(identifiers are in ancestry file anyway)"
+                sys.exit(1)
+            self.identifiers=getIdentifiers(identifiersFilename)
+            if self.identifiers is None:
+                print "failed to read identifiers\n"
+                usage()
+                sys.exit()
+    
+        if ancestryFilename is not None:
+            f=file(ancestryFilename,"r")
+            (self.identifiers,parents)=dagRead.read(f)
+            f.close()
+            self.thisDag=dag.dag(parents,len(parents))
+        else:
+            self.thisDag=dag.listDagObj
+    
+            
+        
+    
+        if likelihoodSet.has_key(self.likelihoodCalc.lower()):
+            self.likelihoodCalc=likelihoodSet[self.likelihoodCalc.lower()]
+        else:
+            print "Argument error: Unknown likelihood function\n"
             usage()
             sys.exit()
-
-    if ancestryFilename is not None:
-        f=file(ancestryFilename,"r")
-        (identifiers,parents)=dagRead.read(f)
-        f.close()
-        thisDag=dag.dag(parents,len(parents))
-    else:
-        thisDag=dag.listDagObj
-
-        
+            
     
-
-    if likelihoodSet.has_key(likelihoodCalc.lower()):
-        likelihoodCalc=likelihoodSet[likelihoodCalc.lower()]
-    else:
-        print "Argument error: Unknown likelihood function\n"
-        usage()
-        sys.exit()
-        
-
-    if logFileName is None and resume:
-        print "cannot resume: no logfile specified\n"
-        usage()
-        sys.exit
-
-    if locations is None and identifiers is None:
-        print "Argument error: Must specify number of locations or file of identifiers\n"
-        usage()
-        sys.exit(1)
-    elif locations is None:
-        locations=len(identifiers)
-    elif identifiers is None:
-        identifiers=[repr(i) for i in range(locations)]
+        if self.logFileName is None and self.resume:
+            print "cannot resume: no logfile specified\n"
+            usage()
+            sys.exit
     
-    if distPriorFilename is not None:
-        prior=getPrior(distPriorFilename,len(identifiers))
-    else:
-        prior=None
+        if self.locations is None and self.identifiers is None:
+            print "Argument error: Must specify number of locations or file of identifiers\n"
+            usage()
+            sys.exit(1)
+        elif self.locations is None:
+            self.locations=len(self.identifiers)
+        elif self.identifiers is None:
+            self.identifiers=[repr(i) for i in range(self.locations)]
+        
+        if distPriorFilename is not None:
+            self.prior=getPrior(distPriorFilename,len(self.identifiers))
+        else:
+            self.prior=None
+    
+    
+        if self.certainty is None:
+            print "Argument error: Must specify termination certainty\n"
+            usage()
+            sys.exit(1)
 
 
-    if certainty is None:
-        print "Argument error: Must specify termination certainty\n"
-        usage()
-        sys.exit(1)
-    return (locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript,thisDag)
+    def getDag(self):
+        return self.thisDag
 
+    def getSwitchScript(self):
+        return self.switchScript
+
+    def getLogFileName(self):
+        return self.logFileName
+  
+    def getLikelihoodCalc(self):
+        return self.likelihoodCalc
+
+    def getCertainty(self):
+        return self.certainty
+
+    def getPrior(self):
+        #if specified, prior is loaded in parseArgs(). Otherwise, uniform default is set here.
+        if self.prior is None:
+            return [ 1/float(self.locations) for i in range(self.locations)]
+        else:
+            return self.prior
+
+    def getPriorKnowlege(self):
+        return (self.positives,self.negatives)
+
+
+    def getIdentifiers(self):
+        return self.identifiers
+
+
+    def haveTestScript(self):
+        return self.testscript is not None
+
+    def getTestScript(self):
+        return self.testscript
+    
+    def doResume(self):
+        return self.resume
 
 class runClass:
     def __init__(self,identifiers,logger,switchScript):
@@ -315,32 +354,32 @@ class manualTest(runClass):
         self.logger.log(where,ret)
         return ret
 
+# parse command line
+args=Args()
 
 
-(locations,identifiers,certainty,testscript,positives,negatives,likelihoodCalc,prior,resume,logFileName,switchScript,thisDag)=parseArgs()
 
-# FIXME: deal with positives, negatives, switchscript
-
-logger=testLog.logger(logFileName,resume) #logger handles logFileName==None (ie, doesn't log)
+logger=testLog.logger(args.getLogFileName(),args.doResume()) #logger handles logFileName==None (ie, doesn't log)
 
 
-#if specified, prior is loaded in parseArgs(). Otherwise, uniform default is set here.
-if prior is None:
-    prior=[ 1/float(locations) for i in range(locations)]
 
-if testscript is None:
-    interactor=manualTest(identifiers,logger,switchScript)
+thisDag=args.getDag()
+prior=args.getPrior()
+identifiers=args.getIdentifiers()
+
+if args.haveTestScript():
+    interactor=scriptTest(identifiers,logger,args.getSwitchScript())
+    interactor.setscript(args.getTestScript())
 else:
-    interactor=scriptTest(identifiers,logger,switchScript)
-    interactor.setscript(testscript)
+    interactor=manualTest(identifiers,logger,args.getSwitchScript())
 
 
 
-finder=BBChop(prior,certainty,interactor,likelihoodCalc,thisDag)
+finder=BBChop(prior,args.getCertainty(),interactor,args.getLikelihoodCalc(),thisDag)
 
-finder.addPriorKnowlege(positives,negatives)
+finder.addPriorKnowlege(args.getPriorKnowlege())
 
-if resume:
+if args.doResume():
     resultsSoFar=logger.getResults()
     for (location,observation) in resultsSoFar:
         finder.addResult(location,observation)
