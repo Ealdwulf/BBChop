@@ -26,12 +26,14 @@ import os
 import dag
 import dagRead
 import testLog
+import skipProbability
 
-options = "a:c:d:g:i:k:l:n:p:rs:t:"
+options = "a:c:d:f:g:i:k:l:n:p:rs:t:"
 options_long  = [
     "ancestry=",
     "certainty=",
     "distprior=",
+    "skipdecayfactor=",
     "log",
     "identifiers=",
     "likelihood=",
@@ -81,6 +83,11 @@ bbchop -i <file>      -c <certainty> [<options>]
      -d or --distprior <file>            : file containing the prior priobabilities for each location, one per line
      -r or --resume                      : resume testing - load results so far from log file, and continue. 
                                            Valid only if a og file is specified.
+     -f or --skipdecayfactor <factor>    : assume locations near those which have been skipped are likely also to be skipped.
+                                           (default is to assume that this is not the case). If factor is positive it is 
+                                           taken as a multiplicative decay factor on the probability of skipping (where
+                                           a location which has already been skipped has probability one). If negative,
+                                           it is an arithmetic decay factor.
 
 
 """
@@ -133,10 +140,13 @@ class Args:
         self.likelihoodCalc="singlerate"
         self.logFileName=None
         self.switchScript=None
+        self.skipProbsFunc=skipProbability.skipProbsSimple
         
+        skipDecayFactor=None        
         ancestryFilename=None
         identifiersFilename=None
         distPriorFilename=None
+        
 
         try:
             (opts,rest) = getopt.gnu_getopt(sys.argv[1:],options,options_long)
@@ -172,6 +182,8 @@ class Args:
                 self.switchScript=a
             elif o in ['-g','--log']:
                 self.logFileName=a
+            elif o in ['-f','--skipdecayfactor']:
+                skipDecayFactor=a
             
     
     
@@ -180,8 +192,15 @@ class Args:
         self.negatives=checkarg(self.negatives,int)
         self.positives=checkarg(self.positives,int)
     
-    
-    
+
+        if skipDecayFactor is not None:
+            skipDecayFactor=checkarg(skipDecayFactor,float)
+            if skipDecayFactor<0:
+                self.skipProbsFunc=skipProbability.skipProbsDecay(skipDecayFactor,skipProbability.doArithDecay)
+            else:
+                self.skipProbsFunc=skipProbability.skipProbsDecay(skipDecayFactor,skipProbability.doGeoDecay)
+                
+            
         if identifiersFilename is not None:
             if ancestryFilename is not None:
                 print "specification of ancestry and indentifiers are incompatible"
@@ -276,6 +295,9 @@ class Args:
     
     def doResume(self):
         return self.resume
+
+    def getSkipProbsFunc(self):
+        return self.skipProbsFunc
 
 class runClass:
     def __init__(self,identifiers,logger,switchScript):
@@ -375,7 +397,12 @@ else:
 
 
 
-finder=BBChop(prior,args.getCertainty(),interactor,args.getLikelihoodCalc(),thisDag)
+finder=BBChop(prior,
+              args.getCertainty(),
+              interactor,
+              args.getLikelihoodCalc(),
+              thisDag,
+              skipProbsFunc=args.getSkipProbsFunc())
 
 finder.addPriorKnowlege(args.getPriorKnowlege())
 

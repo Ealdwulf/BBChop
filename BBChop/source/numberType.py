@@ -96,3 +96,4 @@ def pow(a,b):
         return power(a,b)
 
 zero=const(0)
+one=const(1)
