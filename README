@@ -60,7 +60,7 @@ like got bistect (at least for linear histories - it would be
 interesting to compare with nonlinear ones). 
 
 BBChop is based on Bayesian Search Theory
-(http://en.wikipedia.org/wiki/Bayesian_search_theory). Hence the name,
+(http://en.wikipedia.org/wiki/Bayesian_search_theory ). Hence the name,
 'Bayesian Binary Chop'. You do not, however, have to know, want to
 know, or even believe in, bayesian probability theory in order to use
 it. When it comes to a conclusion, it always prints out some
