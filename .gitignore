@@ -1,2 +1,3 @@
 *.pyc
 */tests/*.test
+BBChop/data/N_T.singleRate.csv

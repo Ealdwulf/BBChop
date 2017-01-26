@@ -18,9 +18,9 @@
 
 all: run_time
 
-topdir = $(shell (cd ../; pwd))
-RUNPY=PYTHONPATH=$(topdir)/source/ python
+RUNPY=python
 
 run_time:
-	$(RUNPY) BBChopTime.py
+	mkdir -p ../data
+	cd .. && $(RUNPY) -m  analysis.BBChopTime
 

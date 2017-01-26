@@ -19,7 +19,7 @@ from BBChop import evidence
 import time
 import random
 from BBChop import likelihoods
-import testCases
+from tests import testCases
 
 
 random.seed(1)
