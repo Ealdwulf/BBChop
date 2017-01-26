@@ -17,7 +17,7 @@
 import sys
 import randomdag
 import dumbdag
-import dag
+from BBChop import dag
 import random
 
 N=30

@@ -1,5 +1,5 @@
 import os
-import dagRead
+from BBChop import dagRead
 
 
 gitRepo = "/home/ealdwulf/Progs/git-trees/git"

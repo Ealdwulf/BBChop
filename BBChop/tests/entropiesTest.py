@@ -14,12 +14,12 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
-import evidence
+from BBChop import evidence
 import random
 
-import dag
+from BBChop import dag
 import testCases
-import numberType
+from BBChop import numberType
 
 epsilon=numberType.const(0.000000001)
 epCoeff=1+epsilon

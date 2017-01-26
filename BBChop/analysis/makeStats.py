@@ -18,7 +18,7 @@
 import BBChop
 import random
 import pdb
-import likelihoods
+from BBChop import likelihoods
 import dag
 import sys
 import math

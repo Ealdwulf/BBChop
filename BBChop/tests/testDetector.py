@@ -14,7 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
-from listUtils import listOr
+from BBChop.listUtils import listOr
 # module which provides a stub detector object for testing
 # BBchop. location can be either specified or random.
 

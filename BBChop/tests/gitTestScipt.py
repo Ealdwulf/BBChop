@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 import testDetector
-import dagRead
+from BBChop import dagRead
 import os
-import dag 
+from BBChop import dag
 import sys
 
 

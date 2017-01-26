@@ -19,7 +19,7 @@
 import BBChop
 from testDetector import detect
 
-import likelihoods
+from BBChop import likelihoods
 import math
 from matplotlib import colors as mcolors
 import dag

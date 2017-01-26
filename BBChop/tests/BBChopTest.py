@@ -14,11 +14,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
-import BBChop
+from BBChop import BBChop
 import random
 import pdb
-import likelihoods
-import dag
+from BBChop import likelihoods
+from BBChop import dag
 import testCases
 import randomdag
 

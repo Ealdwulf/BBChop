@@ -1,7 +1,7 @@
 import dag
 import dagRead
 import time
-import likelihoods
+from BBChop import likelihoods
 from BBChop import BBChop
 import cProfile
 

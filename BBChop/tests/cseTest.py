@@ -1,5 +1,5 @@
 import random
-import cse
+from BBChop import cse
 import sys
 
 if True:

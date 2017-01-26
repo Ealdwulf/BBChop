@@ -15,10 +15,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-import evidence
+from BBChop import evidence
 import time
 import random
-import likelihoods
+from BBChop import likelihoods
 import testCases
 
 

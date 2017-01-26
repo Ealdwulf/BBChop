@@ -16,7 +16,7 @@
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import likelihoods
+from BBChop import likelihoods
 import math
 
 standardN=[100]
