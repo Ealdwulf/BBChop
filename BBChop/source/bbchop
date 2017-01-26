@@ -21,12 +21,12 @@
 from BBChop import BBChop
 import sys
 import getopt
-import likelihoods
 import os
-import dag
-import dagRead
-import testLog
-import skipProbability
+from BBChop import likelihoods
+from BBChop import dag
+from BBChop import dagRead
+from BBChop import testLog
+from BBChop import skipProbability
 
 options = "a:c:d:f:g:i:k:l:n:p:rs:t:"
 options_long  = [

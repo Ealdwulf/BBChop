@@ -1,5 +1,13 @@
 language: python
 python:
     - "2.7"
-install: "pip install mpmath"
-script: BBChop/tests/BBChopTest.py
+install:
+  - pip install mpmath
+  # As done on github.com/tornadoweb/tornado/blob/master/.travis.yml
+  # Create virtualenv "to make sure all imports of optional-dependencies are guarded".
+  - virtualenv ./nodeps
+  - ./nodeps/bin/python setup.py install
+  # - pip freeze
+script:
+  #-BBChop/tests/BBChopTest.py
+  - bbchop

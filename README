@@ -17,11 +17,7 @@ shouldn't be able to do anything dangerous, and works fine finding
 
 ==========	How to try out  BBChop 
 
-Prerequisites: only python, but mpmath is strongly recommended because
-otherwise we have to use python's built in decimal module which is very slow.
-
-Then you need to add the BBChop/source to PYTHONPATH and PATH 
-environment variables.
+Install using the instructions in BBChop/INSTALL.md.
 
 The simplest way to try it out to is run it in manual mode:
 
