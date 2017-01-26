@@ -26,10 +26,10 @@ TESTS = \
 all: $(TESTS)
 	echo "ALL PASSED"
 
-topdir = $(shell (cd ../; pwd))
-PYTHONPATH=$(topdir)/source/
+clean: $(TESTS)
+	rm $^
 RUNPY=python3
 
 
 %.test: %.py
-	$(RUNPY) $<
+	$(RUNPY) $< && touch $@

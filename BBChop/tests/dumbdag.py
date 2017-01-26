@@ -14,7 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
-from BBChop import dagAlg
+import dagAlg
 from BBChop.listUtils import listSub,prod
 # class for computing over directed acyclic graphs.
 # values are held outside the graph object, in lists
