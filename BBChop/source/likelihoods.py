@@ -35,6 +35,13 @@ def g(pred,Ti,Di,Lprior):
     if(pred):
         return numberType.zero
     else:
+        # TODO: This fails for B(638 + 1, 664 + 1).
+        # With those large numbers, the result is always 0.
+        # From XKCD: Have you tried Logarithms?
+        # betaln(z,w) = gammaln(z)+gammaln(w)-gammaln(z+w)
+        
+        #print(pred, Ti, Di, Lprior, Beta(Di+1,Ti+1)*Lprior)
+        
         return Beta(Di+1,Ti+1)*Lprior
     
 def probsFromLikelihoods(likelihoods,likelihoodTot):
