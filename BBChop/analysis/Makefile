@@ -21,6 +21,7 @@ all: run_time
 RUNPY=python
 
 run_time:
-	mkdir -p ../data
-	cd .. && $(RUNPY) -m  analysis.BBChopTime
+	mkdir -p data
+	mkdir -p plots
+	$(RUNPY) BBChopTime.py
 
