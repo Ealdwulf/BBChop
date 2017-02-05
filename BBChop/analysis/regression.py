@@ -31,13 +31,14 @@ i = 0
 (counts,locPrior)=testCases.randomEntropyData(i+1,n,d,False,True,10)
 # likelihoods.singleRateCalc.probs(counts, locPrior, d)
 
-(ls, lsTot, junk) =  likelihoods.singleRate(counts, locPrior, d)
+(ls, lsTot, junk, ls_log) =  likelihoods.singleRate(counts, locPrior, d)
 print(ls)
 print(lsTot)
+print(ls_log)
 
-assert(lsTot > 0)
+# assert(lsTot > 0)
 
 likelihoods.probs(counts, locPrior, likelihoods.singleRate ,d)
 
 
-print n
+print(n)

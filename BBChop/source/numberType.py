@@ -46,6 +46,7 @@ if numberType == 'mpmath':
     copyList=copy.copy
     zeroDivisionError=ZeroDivisionError
     overflowError=OverflowError
+    inf = mpmath.inf
 
 elif numberType == 'float':
     
@@ -58,6 +59,7 @@ elif numberType == 'float':
     copyList=copy.copy
     zeroDivisionError=ZeroDivisionError
     overflowError=OverflowError
+    inf = float('inf')
 
 elif numberType == 'Decimal':
     c=decimal.getcontext()
@@ -80,6 +82,7 @@ elif numberType == 'Decimal':
 
     zeroDivisionError=ZeroDivisionError
     overflowError=decimal.InvalidOperation
+    inf = decimal.Decimal('inf')
 
 
 

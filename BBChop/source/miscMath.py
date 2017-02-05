@@ -32,6 +32,9 @@ def BetaX(x,y):
 def BetaY(x,y):
     return (Gamma(x)*Gamma(y)+0.0)/Gamma(x+y)
 
+def logBeta(x, y):
+    ''' log of Beta(x, y) '''
+    return logGamma(x) + logGamma(y) - logGamma(x+y)
 
 if useLogFact:
     Beta=BetaX

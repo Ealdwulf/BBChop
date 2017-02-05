@@ -16,20 +16,20 @@
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
 import numberType
-from miscMath import Beta,fact,choice,powList
+from miscMath import Beta,fact,choice,powList,logBeta
 from listUtils import *
 
 debug=False
 
 # exception to raise when asked to calculate a probability distribution on 'loc' given impossible evidence
-class Impossible(Exception): 
+class Impossible(Exception):
     def __coerce__(self,other):
         return (type(other)(0.0),0.0)
 
 # special object used to identify zero even though for the most part we are using floating point.
 
 Zero=False
-    
+
 
 def g(pred,Ti,Di,Lprior):
     if(pred):
@@ -39,36 +39,81 @@ def g(pred,Ti,Di,Lprior):
         # With those large numbers, the result is always 0.
         # From XKCD: Have you tried Logarithms?
         # betaln(z,w) = gammaln(z)+gammaln(w)-gammaln(z+w)
-        
+
         #print(pred, Ti, Di, Lprior, Beta(Di+1,Ti+1)*Lprior)
-        
+
         return Beta(Di+1,Ti+1)*Lprior
-    
-def probsFromLikelihoods(likelihoods,likelihoodTot):
+
+def glog(pred, Ti, Di, Lprior):
+    if pred:
+        return -1 * numberType.inf
+    else:
+        lnB = logBeta(Di+1, Ti+1)
+        lnP = numberType.log(Lprior)
+        return lnB + lnP
+
+def whuber(log_i, log_n, eps, n):
+         ''' Computes alpha_i from whuber's method.
+             From http://stats.stackexchange.com/a/66621
+
+             log_i: Logarithm i.
+             log_n: Logarithm n, where n is largest element.
+             eps: required precision.
+             n: Number of elements in series
+         '''
+         if log_i - log_n >= numberType.log(eps) - numberType.log(n):
+             return numberType.exp(log_i - log_n)
+         else:
+             return 0
+
+def normalise_likelihoods(logs):
+    ''' Apply whuber's algorithm on 'logs' '''
+    log_max = max(logs)
+    n = len(logs)
+    eps = 1e-16  # about the precision of IEEE 754
+
+    return [ whuber(l, log_max, eps, n) for l in logs ]
+
+
+def probsFromLikelihoods(likelihoods,likelihoodTot, log_likelihoods):
     #normalise locProbs
     probs=[]
 
+
+    '''
+    From http://stats.stackexchange.com/a/66621
+    '''
+    eps = 1e-16
+    if likelihoodTot < eps:
+        likelihoods = normalise_likelihoods(log_likelihoods)
+        # 'To avoid too much rounding error, compute the sum starting with '
+        # 'the smallest values of the α_i.' (ibid.) [Only relevant for large N.]
+        likelihoodTot = sum(sorted(likelihoods))
+        print(likelihoods, likelihoodTot)
+
+
+    # NOTE: Broken, doesn't work.
     if all([l is Zero for l in likelihoods]):
         raise Impossible
-    
+
     for li in likelihoods :
         probs.append(li/likelihoodTot)
     return probs
-        
+
 # returns a posteriori P(L|E) and a priori P(E) (that is, P(E|L) marginalised over L)
-def probs(counts,locPrior,likelihoodsFunc,dag,doprint=None):    
-    (ls,lsTot,junk)=likelihoodsFunc(counts,locPrior,dag)
+def probs(counts,locPrior,likelihoodsFunc,dag,doprint=None):
+    (ls,lsTot,junk, ls_log)=likelihoodsFunc(counts,locPrior,dag)
     if debug: print "al",ls
     if doprint!=None:
         print doprint,ls
-    probs=probsFromLikelihoods(ls,lsTot)
+    probs=probsFromLikelihoods(ls,lsTot, ls_log)
     return (probs,lsTot)
 
 # NB: these are not technically likelihoods, because they include the prior.
 
-# likelihood calculation functions. 
+# likelihood calculation functions.
 # returns: P(counts| location)*prior(location) for each location and
-# their sum. 
+# their sum.
 # Also returns P(incD(counts,location)|location))*prior(location) for each location
 # and  P(incT(counts,location)|location))*prior(location) for each location
 # where incD and incT increment D and T for a particular
@@ -88,19 +133,20 @@ def singleRate(counts,locPrior,dag):
     Ds=listAdd(ds,dag.sumAfter(ds))
 
 
-    # calculate predicates for likelihoods 
+    # calculate predicates for likelihoods
 
 
     #if a detection has occured, only locations <= that location remain possible.
     # Therefore we eliminate locations not <= any detection, which is those
-    # > or unrelated to the detection 
+    # > or unrelated to the detection
     preds=[di>0 for di in ds]
     predsU=dag.anyUpto(preds)
     predsO=dag.anyOther(preds)
-    preds=listOr(predsU,predsO) 
+    preds=listOr(predsU,predsO)
 
     #calculate likelihoods
     gs=[]
+    gslog = []
     gsFound=[]
     gsNFound=[]
     gtot=0
@@ -110,12 +156,13 @@ def singleRate(counts,locPrior,dag):
         gn=g(preds[i],Ts[i]+1,Ds[i],  locPrior[i])
         gtot+=gi
         gs.append(gi)
+        gslog.append(glog(preds[i], Ts[i], Ds[i], locPrior[i]))
         gsFound.append(gf)
         gsNFound.append(gn)
 
-    
 
-    return (gs,gtot,(gsFound,gsNFound))
+
+    return (gs,gtot,(gsFound,gsNFound), gslog)
 
 def gMulti(pred,beta,Lprior):
     if pred:
@@ -132,7 +179,7 @@ def multiRate(counts,locPrior,dag):
 
 
 
-    # calculate predicates for likelihoods 
+    # calculate predicates for likelihoods
 
 
     ts=[ti for (ti,di) in counts]
@@ -149,11 +196,11 @@ def multiRate(counts,locPrior,dag):
 
     #if a detection has occured, only locations <= that location remain possible.
     # Therefore we eliminate locations not <= any detection, which is those
-    # > or unrelated to the detection 
+    # > or unrelated to the detection
     preds=[di>0 for di in ds]
     predsU=dag.anyUpto(preds)
     predsO=dag.anyOther(preds)
-    preds=listOr(predsU,predsO) 
+    preds=listOr(predsU,predsO)
 
 
     #calculate likelihoods
@@ -167,7 +214,7 @@ def multiRate(counts,locPrior,dag):
         gs.append(gi)
 
 
-    
+
 
     return (gs,gtot,(betas1,betasF,betasN))
 
@@ -208,29 +255,29 @@ class likelihoodCalc:
             self.contribOther(renyi,whichDat),
             self.contribAfter(renyi,whichDat))
         return tot
-    
+
     # calculate the 4 different lists of totals, which will later be returned by __getitem__().
     def calc(self):
-        
-        FoundNorms=self.calcOne(False,cFound)        
+
+        FoundNorms=self.calcOne(False,cFound)
         NfoundNorms=self.calcOne(False,cNFound)
-        
-        
+
+
         renyiLksFoundTots= self.calcOne(True,cFound)
         renyiLksNFoundTots=self.calcOne(True,cNFound)
-        
+
         # probability of finding at i:
         findProbs=[FoundNorm/self.lksTot for FoundNorm in FoundNorms]
-        
 
-        
+
+
         self.findProbs=findProbs
         self.renyiLksFoundTots=renyiLksFoundTots
         self.renyiLksNFoundTots=renyiLksNFoundTots
         self.FoundNorms=FoundNorms
         self.NfoundNorms=NfoundNorms
-        
-    # return, for location i: 
+
+    # return, for location i:
     # 1. The probability of detecting at i, given the current evidence
     # 2. The sum of the likelihood (raised to alpha) that the data is at each location, given the current evidence plus
     #    one additional detection at location i.
@@ -257,9 +304,9 @@ def switchDat(orig,found,Nfound,alpha):
     return r
 
 # calculations specific to singleRate prior on r.
-#This class assumes 
+#This class assumes
 
-# A1: 
+# A1:
 # if d[i]>0 for any i and j>i, then likelihood[j]=0
 
 # A2:
@@ -295,7 +342,7 @@ class singleRateCalcX(likelihoodCalc):
         self.likelihoodDat=switchDat(lks,lksFound,lksNFound,alpha)
         self.calc()
 
-            
+
     def contribSelf(self,renyi,whichDat):
         return self.likelihoodDat[renyi][whichDat]
 
@@ -322,7 +369,7 @@ class singleRateCalcX(likelihoodCalc):
 
 
 # unlike the case for singleRate, all the likelihoods up to k vary when we move our observation
-# location from k to k+1. But we still don't need to add them all up again, because they vary by a 
+# location from k to k+1. But we still don't need to add them all up again, because they vary by a
 # constant factor, so we can cancel out the old and multiply by the new.
 
 class multiRateCalcX(likelihoodCalc):
@@ -334,7 +381,7 @@ class multiRateCalcX(likelihoodCalc):
         (lks,lksTot,(betas,betasFound,betasNFound))=multiRate(self.counts,locPrior,self.dag)
 
         self.lksTot=lksTot
-         
+
         self.betasDat=switchDat(betas,betasFound,betasNFound,alpha)
         self.likelihoodDat={False: lks, True: powList(lks,alpha)}
 
@@ -343,11 +390,11 @@ class multiRateCalcX(likelihoodCalc):
         renyiLks=powList(lks,alpha)
         r=listAdd(renyiLks, dag.sumUpto(renyiLks))
         r=listDiv(r,self.betasDat[True][cOrig])
-        self.uptoBetas = {False: s, True: r} # 
+        self.uptoBetas = {False: s, True: r} #
         self.calc()
-        
 
-            
+
+
     def contribSelf(self,renyi,whichDat):
         return [numberType.zero for i in self.counts] # 'self' contrib included in 'upto'
 
@@ -380,13 +427,13 @@ def deterministic(counts,locPrior,dag):
 
     #if a detection has occured, only locations <= the detection location remain possible.
     # Therefore we eliminate locations not <= any detection, which is those
-    # > or unrelated to the detection 
+    # > or unrelated to the detection
     dpreds1=[di>0 for di in ds]
     dpredsU=dag.anyUpto(dpreds1)
     dpredsO=dag.anyOther(dpreds1)
-    dpreds=listOr(dpredsU,dpredsO) 
+    dpreds=listOr(dpredsU,dpredsO)
 
-    # the situation is the complement for nondetections: 
+    # the situation is the complement for nondetections:
     # locations <= the detection location are eliminated.
     # but this not symmetric: we don't exclude 'other' locations.
     tpreds1=[ti>0 for ti in ts]
@@ -394,7 +441,7 @@ def deterministic(counts,locPrior,dag):
 
     preds=listOr(dpreds,tpreds)
     z=[Zero for i in counts]
-    
+
     lks=listCond(preds,z,locPrior)
 
     lksTot=sum(lks)
@@ -405,23 +452,23 @@ class deterministicCalcX(likelihoodCalc):
     def __init__(self,counts,locPrior,alpha,dag):
         likelihoodCalc.__init__(self,counts,locPrior,alpha,dag)
         (lks,lksTot,junk)=deterministic(self.counts,locPrior,self.dag)
-    
-        
+
+
         self.lksTot=lksTot
         self.lksDat={False:lks,True:powList(lks,alpha)}
         self.calc()
-    
-    
+
+
     def contribSelf(self,renyi,whichDat):
         if whichDat==cNFound:
-            return [Zero for i in self.counts] 
+            return [Zero for i in self.counts]
         else:
             return self.lksDat[renyi]
 
 
     def contribUpto(self,renyi,whichDat):
         if  whichDat==cNFound:
-            return [Zero for i in self.counts] 
+            return [Zero for i in self.counts]
         else:
             return self.dag.sumUpto(self.lksDat[renyi])
 
@@ -457,7 +504,7 @@ class likelihood:
     def __init__(self,calcClass,func):
         self.calcClass=calcClass
         self.func=func
-        
+
     def name(self):
         return self.func.func_name
 
@@ -473,5 +520,3 @@ class likelihood:
 singleRateCalc=likelihood(singleRateCalcX,singleRate)
 multiRateCalc=likelihood(multiRateCalcX,multiRate)
 deterministicCalc=likelihood(deterministicCalcX,deterministic)
-
-
