@@ -139,16 +139,10 @@ def singleRate(counts,locPrior,dag):
         gf=log_g(preds[i],Ts[i]  ,Ds[i]+1,locPrior[i])
         gn=log_g(preds[i],Ts[i]+1,Ds[i],  locPrior[i])
         gs.append(gi)
-        # TODO: Are the next two lines okay?
-        # An alternative would be to normalise by max(gs, log(gsFound),
-        # log(GsNFound)), which is necessary if those three lists are ever
-        # used in non-normalised way in the same context.
         gsFound.append(gf)
         gsNFound.append(gn)
 
-    '''
-    From http://stats.stackexchange.com/a/66621
-    '''
+    # From http://stats.stackexchange.com/a/66621
     gs, gsFound, gsNFound = normalise_likelihoods([gs, gsFound, gsNFound])
     # 'To avoid too much rounding error, compute the sum starting with '
     # 'the smallest values of the α_i.' (ibid.) [Only relevant for large N.]
@@ -177,10 +171,11 @@ def multiRate(counts,locPrior,dag):
     ts=[ti for (ti,di) in counts]
     ds=[di for (ti,di) in counts]
 
-    # TODO: Needs log(Beta)-fix, too.
-    betas1=[Beta(ds[i]+1,  ts[i]+1  ) for i in xrange(len(locPrior))]
-    betasF=[Beta(ds[i]+1+1,ts[i]+1  ) for i in xrange(len(locPrior))]
-    betasN=[Beta(ds[i]+1,  ts[i]+1+1) for i in xrange(len(locPrior))]
+    betas1=[logBeta(ds[i]+1,  ts[i]+1  ) for i in xrange(len(locPrior))]
+    betasF=[logBeta(ds[i]+1+1,ts[i]+1  ) for i in xrange(len(locPrior))]
+    betasN=[logBeta(ds[i]+1,  ts[i]+1+1) for i in xrange(len(locPrior))]
+    betas1, betasF, betasN = normalise_likelihoods([betas1, betasF, betasN])
+
 
     betas=dag.prodAfter(betas1)
     betas=listMul(betas,betas1)
