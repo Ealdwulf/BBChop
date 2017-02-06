@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #    Copyright 2008 Ealdwulf Wuffinga
 
 #    This file is part of BBChop.
@@ -18,6 +20,7 @@
 import numberType
 from miscMath import Beta,fact,choice,powList,logBeta
 from listUtils import *
+from itertools import chain
 
 debug=False
 
@@ -30,21 +33,9 @@ class Impossible(Exception):
 
 Zero=False
 
-
-def g(pred,Ti,Di,Lprior):
-    if(pred):
-        return numberType.zero
-    else:
-        # TODO: This fails for B(638 + 1, 664 + 1).
-        # With those large numbers, the result is always 0.
-        # From XKCD: Have you tried Logarithms?
-        # betaln(z,w) = gammaln(z)+gammaln(w)-gammaln(z+w)
-
-        #print(pred, Ti, Di, Lprior, Beta(Di+1,Ti+1)*Lprior)
-
-        return Beta(Di+1,Ti+1)*Lprior
-
-def glog(pred, Ti, Di, Lprior):
+def log_g(pred, Ti, Di, Lprior):
+    ''' Returns log(g(...)) = log(Beta(Di+1, Ti+1) * Lprior) or log(0) if pred
+    '''
     if pred:
         return -1 * numberType.inf
     else:
@@ -66,31 +57,9 @@ def whuber(log_i, log_n, eps, n):
          else:
              return 0
 
-def normalise_likelihoods(logs):
-    ''' Apply whuber's algorithm on 'logs' '''
-    log_max = max(logs)
-    n = len(logs)
-    eps = 1e-16  # about the precision of IEEE 754
-
-    return [ whuber(l, log_max, eps, n) for l in logs ]
-
-
-def probsFromLikelihoods(likelihoods,likelihoodTot, log_likelihoods):
+def probsFromLikelihoods(likelihoods,likelihoodTot):
     #normalise locProbs
     probs=[]
-
-
-    '''
-    From http://stats.stackexchange.com/a/66621
-    '''
-    eps = 1e-16
-    if likelihoodTot < eps:
-        likelihoods = normalise_likelihoods(log_likelihoods)
-        # 'To avoid too much rounding error, compute the sum starting with '
-        # 'the smallest values of the α_i.' (ibid.) [Only relevant for large N.]
-        likelihoodTot = sum(sorted(likelihoods))
-        print(likelihoods, likelihoodTot)
-
 
     # NOTE: Broken, doesn't work.
     if all([l is Zero for l in likelihoods]):
@@ -102,12 +71,29 @@ def probsFromLikelihoods(likelihoods,likelihoodTot, log_likelihoods):
 
 # returns a posteriori P(L|E) and a priori P(E) (that is, P(E|L) marginalised over L)
 def probs(counts,locPrior,likelihoodsFunc,dag,doprint=None):
-    (ls,lsTot,junk, ls_log)=likelihoodsFunc(counts,locPrior,dag)
+    (ls,lsTot,junk)=likelihoodsFunc(counts,locPrior,dag)
     if debug: print "al",ls
     if doprint!=None:
         print doprint,ls
-    probs=probsFromLikelihoods(ls,lsTot, ls_log)
+    probs=probsFromLikelihoods(ls,lsTot)
     return (probs,lsTot)
+
+
+def normalise_likelihoods(list_of_logs):
+    ''' Apply whuber's algorithm on list of list of logs. The algorithm
+    normalises the log likelihoods and then converts them to likelihoods.
+
+    Max, and N are found over the concatenation of all lists.
+
+    :returns: List of list of likelihoods
+
+    '''
+    log_max = max(chain(*list_of_logs))
+    n = sum(len(logs) for logs in list_of_logs)
+    eps = 1e-16  # about the precision of IEEE 754
+
+    return [[whuber(l, log_max, eps, n) for l in logs] for logs in list_of_logs]
+
 
 # NB: these are not technically likelihoods, because they include the prior.
 
@@ -146,23 +132,29 @@ def singleRate(counts,locPrior,dag):
 
     #calculate likelihoods
     gs=[]
-    gslog = []
     gsFound=[]
     gsNFound=[]
-    gtot=0
     for i in xrange(len(counts)):
-        gi=g(preds[i],Ts[i]  ,Ds[i]  ,locPrior[i])
-        gf=g(preds[i],Ts[i]  ,Ds[i]+1,locPrior[i])
-        gn=g(preds[i],Ts[i]+1,Ds[i],  locPrior[i])
-        gtot+=gi
+        gi=log_g(preds[i],Ts[i]  ,Ds[i]  ,locPrior[i])
+        gf=log_g(preds[i],Ts[i]  ,Ds[i]+1,locPrior[i])
+        gn=log_g(preds[i],Ts[i]+1,Ds[i],  locPrior[i])
         gs.append(gi)
-        gslog.append(glog(preds[i], Ts[i], Ds[i], locPrior[i]))
+        # TODO: Are the next two lines okay?
+        # An alternative would be to normalise by max(gs, log(gsFound),
+        # log(GsNFound)), which is necessary if those three lists are ever
+        # used in non-normalised way in the same context.
         gsFound.append(gf)
         gsNFound.append(gn)
 
+    '''
+    From http://stats.stackexchange.com/a/66621
+    '''
+    gs, gsFound, gsNFound = normalise_likelihoods([gs, gsFound, gsNFound])
+    # 'To avoid too much rounding error, compute the sum starting with '
+    # 'the smallest values of the α_i.' (ibid.) [Only relevant for large N.]
+    gtot = sum(sorted(gs))
 
-
-    return (gs,gtot,(gsFound,gsNFound), gslog)
+    return (gs,gtot,(gsFound,gsNFound))
 
 def gMulti(pred,beta,Lprior):
     if pred:
@@ -185,6 +177,7 @@ def multiRate(counts,locPrior,dag):
     ts=[ti for (ti,di) in counts]
     ds=[di for (ti,di) in counts]
 
+    # TODO: Needs log(Beta)-fix, too.
     betas1=[Beta(ds[i]+1,  ts[i]+1  ) for i in xrange(len(locPrior))]
     betasF=[Beta(ds[i]+1+1,ts[i]+1  ) for i in xrange(len(locPrior))]
     betasN=[Beta(ds[i]+1,  ts[i]+1+1) for i in xrange(len(locPrior))]

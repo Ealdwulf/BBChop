@@ -19,7 +19,7 @@ import evidence
 import time
 import random
 import likelihoods
-import testCases
+from tests import testCases
 
 
 random.seed(1)
@@ -47,5 +47,3 @@ for n in range(50,1000,50):
     print n
 
 out.close()
-                  
-
