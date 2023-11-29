@@ -1,0 +1,5 @@
+gh repo clone infoalbertkin55/BBChop{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+  }
+}
