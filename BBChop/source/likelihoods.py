@@ -51,9 +51,9 @@ def probsFromLikelihoods(likelihoods,likelihoodTot):
 # returns a posteriori P(L|E) and a priori P(E) (that is, P(E|L) marginalised over L)
 def probs(counts,locPrior,likelihoodsFunc,dag,doprint=None):    
     (ls,lsTot,junk)=likelihoodsFunc(counts,locPrior,dag)
-    if debug: print "al",ls
+    if debug: print("al",ls)
     if doprint!=None:
-        print doprint,ls
+        print(doprint,ls)
     probs=probsFromLikelihoods(ls,lsTot)
     return (probs,lsTot)
 
@@ -97,7 +97,7 @@ def singleRate(counts,locPrior,dag):
     gsFound=[]
     gsNFound=[]
     gtot=0
-    for i in xrange(len(counts)):
+    for i in range(len(counts)):
         gi=g(preds[i],Ts[i]  ,Ds[i]  ,locPrior[i])
         gf=g(preds[i],Ts[i]  ,Ds[i]+1,locPrior[i])
         gn=g(preds[i],Ts[i]+1,Ds[i],  locPrior[i])
@@ -131,9 +131,9 @@ def multiRate(counts,locPrior,dag):
     ts=[ti for (ti,di) in counts]
     ds=[di for (ti,di) in counts]
 
-    betas1=[Beta(ds[i]+1,  ts[i]+1  ) for i in xrange(len(locPrior))]
-    betasF=[Beta(ds[i]+1+1,ts[i]+1  ) for i in xrange(len(locPrior))]
-    betasN=[Beta(ds[i]+1,  ts[i]+1+1) for i in xrange(len(locPrior))]
+    betas1=[Beta(ds[i]+1,  ts[i]+1  ) for i in range(len(locPrior))]
+    betasF=[Beta(ds[i]+1+1,ts[i]+1  ) for i in range(len(locPrior))]
+    betasN=[Beta(ds[i]+1,  ts[i]+1+1) for i in range(len(locPrior))]
 
     betas=dag.prodAfter(betas1)
     betas=listMul(betas,betas1)
@@ -154,7 +154,7 @@ def multiRate(counts,locPrior,dag):
     gsFound=[]
     gsNFound=[]
     gtot=0
-    for i in xrange(len(counts)):
+    for i in range(len(counts)):
         gi=gMulti(preds[i],betas[i],      locPrior[i])
         gtot+=gi
         gs.append(gi)
@@ -452,7 +452,7 @@ class likelihood:
         self.func=func
         
     def name(self):
-        return self.func.func_name
+        return self.func.__name__
 
     def probs(self,counts,locPrior,dag):
         return probs(counts,locPrior,self.func,dag)

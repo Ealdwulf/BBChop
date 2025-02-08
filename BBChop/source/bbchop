@@ -46,7 +46,7 @@ options_long  = [
 ]
 
 def usage():
-    print """
+    print("""
 bbchop is a binary search program that works in the presense of false negatives. 
 
 bbchop -l <locations> -c <certainty> [<options>]
@@ -90,7 +90,7 @@ bbchop -i <file>      -c <certainty> [<options>]
                                            it is an arithmetic decay factor.
 
 
-"""
+""")
 
 
 def checkarg(arg,checkfunc):
@@ -203,12 +203,12 @@ class Args:
             
         if identifiersFilename is not None:
             if ancestryFilename is not None:
-                print "specification of ancestry and indentifiers are incompatible"
-                print "(identifiers are in ancestry file anyway)"
+                print("specification of ancestry and indentifiers are incompatible")
+                print("(identifiers are in ancestry file anyway)")
                 sys.exit(1)
             self.identifiers=getIdentifiers(identifiersFilename)
             if self.identifiers is None:
-                print "failed to read identifiers\n"
+                print("failed to read identifiers\n")
                 usage()
                 sys.exit()
     
@@ -223,21 +223,21 @@ class Args:
             
         
     
-        if likelihoodSet.has_key(self.likelihoodCalc.lower()):
+        if self.likelihoodCalc.lower() in likelihoodSet:
             self.likelihoodCalc=likelihoodSet[self.likelihoodCalc.lower()]
         else:
-            print "Argument error: Unknown likelihood function\n"
+            print("Argument error: Unknown likelihood function\n")
             usage()
             sys.exit()
             
     
         if self.logFileName is None and self.resume:
-            print "cannot resume: no logfile specified\n"
+            print("cannot resume: no logfile specified\n")
             usage()
             sys.exit
     
         if self.locations is None and self.identifiers is None:
-            print "Argument error: Must specify number of locations or file of identifiers\n"
+            print("Argument error: Must specify number of locations or file of identifiers\n")
             usage()
             sys.exit(1)
         elif self.locations is None:
@@ -252,7 +252,7 @@ class Args:
     
     
         if self.certainty is None:
-            print "Argument error: Must specify termination certainty\n"
+            print("Argument error: Must specify termination certainty\n")
             usage()
             sys.exit(1)
 
@@ -320,8 +320,8 @@ class runClass:
 
     def statusCallback(self,ended,mostLikely,mostLikelyProb,probs,counts):
         if ended:
-            print "\nSearch complete. ",
-        print "Most likely location is %s (probability %f)." % (self.identifiers[mostLikely],mostLikelyProb)
+            print("\nSearch complete. ",end="")
+        print("Most likely location is %s (probability %f)." % (self.identifiers[mostLikely],mostLikelyProb))
 
 
 # assumes unix return code from script
@@ -358,7 +358,7 @@ class scriptTest(runClass):
 class manualTest(runClass):
     def test(self,where):
         self.switch(where)
-        print "Please test at location %s." % self.identifiers[where]
+        print("Please test at location %s." % self.identifiers[where])
         prompt="Target detected at %s? Y/N/S(kip) " % self.identifiers[where]
 
         while True:
@@ -415,12 +415,12 @@ if args.doResume():
 where=finder.search()
 logger.close()
 
-print "Number of tests at %s: %d of which %d detected" %(identifiers[where],sum(finder.counts[where]),finder.counts[where][1])
+print("Number of tests at %s: %d of which %d detected" %(identifiers[where],sum(finder.counts[where]),finder.counts[where][1]))
 
 if len(thisDag.getParents(where))>0:
-    print "Number of tests at parents of %s:" % (identifiers[where])
+    print("Number of tests at parents of %s:" % (identifiers[where]))
     for p in thisDag.getParents(where):
-        print "\t At %s, %d of which %d detected" %(identifiers[p],sum(finder.counts[p]),finder.counts[p][1])
+        print("\t At %s, %d of which %d detected" %(identifiers[p],sum(finder.counts[p]),finder.counts[p][1]))
 else:
-    print "Location %s has no parents" %(identifiers[where])
+    print("Location %s has no parents" %(identifiers[where]))
 

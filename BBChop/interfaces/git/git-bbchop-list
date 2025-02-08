@@ -22,7 +22,7 @@ ids=[]
 (stdout,stderr)=proc.communicate()
 if proc.returncode is None:
     proc.kill()
-    print "error running git rev-list"
+    print("error running git rev-list")
     sys.exit(1)
 
 stdout=stdout.rstrip()
@@ -42,6 +42,6 @@ for line in stdout.split('\n'):
 # now do the output
 
 for i in range(len(ids)):
-    print ids[i]," ",
+    print(ids[i]," ",end="")
     thispar=[p for p in parents[i] if p in idSet]
-    print ' '.join(thispar)
+    print(' '.join(thispar))

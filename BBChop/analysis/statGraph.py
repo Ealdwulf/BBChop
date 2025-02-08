@@ -72,9 +72,9 @@ s7=getStats(m7)
 
 def plots(pfunc,s,atitle,x,y,nonKey,ycomb,legloc,fname,labfn,errcomb=None,axisArgs=None,**kwargs):
     if os.access(fname,os.F_OK):
-        print fname,"exists"
+        print(fname,"exists")
     else:
-        print "writing ",fname
+        print("writing ",fname)
         g1=s.collate(x,y,nonKey)
         g1c=collStats.collAllStats(g1,ycomb,errcomb)
         

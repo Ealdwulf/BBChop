@@ -27,8 +27,8 @@ def transitiveClosure(rel,N):
     closedRel=copy.copy(rel)
     for j in range(N):
         for i in range(N):
-            if closedRel.has_key((i,j)):
+            if (i,j) in closedRel:
                 for k in range(N):
-                    if closedRel.has_key((j,k)):
+                    if (j,k) in closedRel:
                         closedRel[(i,k)]=1
     return closedRel

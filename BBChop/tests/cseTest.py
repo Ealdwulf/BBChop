@@ -50,18 +50,18 @@ for i in range(numTests):
 
     res=expl.doCalc(vals,union,set())
 
-    print "test %d " % i,
+    print("test %d " % i,end="")
     
     if res!=explist:
-        print "fail"
+        print("fail")
         fail=True
     else:
-        print "pass"
+        print("pass")
 
 if fail:
-    print "FAILED"
+    print("FAILED")
     sys.exit(1)
 else:
-    print "PASSED"
+    print("PASSED")
     sys.exit(0)
     

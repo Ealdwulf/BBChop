@@ -28,7 +28,7 @@ all: $(TESTS)
 
 topdir = $(shell (cd ../; pwd))
 PYTHONPATH=$(topdir)/source/
-RUNPY=python
+RUNPY=python3
 
 export topdir
 export PYTHONPATH

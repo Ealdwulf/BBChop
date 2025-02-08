@@ -76,7 +76,7 @@ def deterministic_chop(N,loc):
 
     while max!=min:
         testloc=min+(max-min)/2
-#        print min,max,testloc
+#        print(min,max,testloc)
 
         if testloc<loc:
             for i in range(min,testloc+1):

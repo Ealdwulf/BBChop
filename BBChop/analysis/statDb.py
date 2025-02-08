@@ -41,7 +41,7 @@ def add(key,value):
 def get(key):
     return pickle.loads(theDB[pickle.dumps(key)])
 def has_key(key):
-    return theDB.has_key(pickle.dumps(key))
+    return pickle.dumps(key) in theDB
 
 def iteritems():
     global theDB

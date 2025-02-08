@@ -28,7 +28,7 @@ data=[(int(d[0]),float(d[1])) for d in data]
 coll={}
 
 for (N,time) in data:
-    if coll.has_key(N):
+    if N in coll:
         coll[N].append(time)
     else:
         coll[N]=[time]

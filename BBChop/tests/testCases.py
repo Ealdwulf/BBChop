@@ -72,9 +72,9 @@ def runTests(testFunc,casesFunc):
             tfail= testFunc(case)
             fail=fail or tfail 
             if fail:
-                print "->FAILED"
+                print("->FAILED")
             else:
-                print "->PASSED"
+                print("->PASSED")
 
     else:
         testNum=int(sys.argv[1])
@@ -86,10 +86,10 @@ def runTests(testFunc,casesFunc):
     
     
     if fail:
-        print "FAILED!"
+        print("FAILED!")
         sys.exit(1)
     else:
-        print "PASSED!"
+        print("PASSED!")
         sys.exit(0)
 
 

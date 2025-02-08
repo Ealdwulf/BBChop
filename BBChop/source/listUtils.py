@@ -17,6 +17,7 @@
 
 import operator
 import numberType
+from functools import reduce
 # returns (index,min)
 def findMin(alist):
     p=1000000000000
@@ -37,12 +38,12 @@ def findMax(alist):
     return (w,p)
 
 def listComb(comb,*args):
-    r=xrange(len(args[0]))
+    r=range(len(args[0]))
     
     return [comb([arg[i] for arg in args]) for i in r]
 
 def listComb1(op,comb,first,*args):
-    r=xrange(len(args[0]))
+    r=range(len(args[0]))
     
     return [op(first[i],comb([arg[i] for arg in args])) for i in r]
 
@@ -57,7 +58,7 @@ listAnd=lambda *vals: listComb(all,*vals)
 listOr =lambda *vals: listComb(any,*vals)
 
 listMul=lambda *vals: listComb(prod,*vals)
-listDiv=lambda *vals: listComb1(operator.div,prod,*vals)
+listDiv=lambda *vals: listComb1(operator.truediv,prod,*vals)
 
 
 def cond(c,a,b):
@@ -67,4 +68,4 @@ def cond(c,a,b):
         return b
 
 def listCond(c,a,b):
-    return [cond(c[i],a[i],b[i]) for i in xrange(len(c))]
+    return [cond(c[i],a[i],b[i]) for i in range(len(c))]

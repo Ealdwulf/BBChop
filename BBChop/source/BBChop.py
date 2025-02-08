@@ -49,7 +49,7 @@ def greedyStrat(counts,locPrior,likelihoodsObj,dag,skipProbs):
     # test where expected entropy is smallest
     
     expectedGain = [(currEntropy-entropyResults[i])*(numberType.one-skipProbs[i]) for
-                    i in xrange(len(entropyResults))]
+                    i in range(len(entropyResults))]
     (next,nextp)=findMax(expectedGain)
 
     return next
@@ -58,7 +58,7 @@ def greedyStrat(counts,locPrior,likelihoodsObj,dag,skipProbs):
 # would be expected to improve next gain in entropy.
 
 def nearlyGreedyStrat(counts,locPrior,likelihoodsObj,dag,skipProbs):
-    dlocs=[i for i in xrange(len(counts)) if counts[i][1]]
+    dlocs=[i for i in range(len(counts)) if counts[i][1]]
     (currEntropy,entropyResults,findProbs)=entropiesFast(counts,locPrior,likelihoodsObj,dag)
     (next,nextE)=findMin(entropyResults)
     if len(dlocs):
@@ -77,7 +77,7 @@ def nearlyGreedyStrat(counts,locPrior,likelihoodsObj,dag,skipProbs):
         
         expectedEntropy=findProbs[dloc]*nextED+(1-findProbs[dloc])*nextET
 
-#        print "c %1.2f n %1.02f c-n %1.04f c-e %1.04f fp %1.02f nf %1.02f nt %1.02f" %(currEntropy,nextE,currEntropy-nextE,currEntropy-expectedEntropy,findProbs[dloc],nextED,nextET)
+#        print("c %1.2f n %1.02f c-n %1.04f c-e %1.04f fp %1.02f nf %1.02f nt %1.02f" %(currEntropy,nextE,currEntropy-nextE,currEntropy-expectedEntropy,findProbs[dloc],nextED,nextET))
         if (currEntropy-nextE)<(currEntropy-expectedEntropy)/2.0:
             return dloc
         else:
@@ -140,7 +140,7 @@ class BBChop:
             self.counts[location]=(t+1,d)
             
         if debug:
-            print "ct",self.counts
+            print("ct",self.counts)
         
 
     def search(self):
@@ -148,8 +148,8 @@ class BBChop:
 
         (whereabouts,maxp) = findMax(locProbs)
         if debug:
-            print "lp",map(float,locProbs)
-            print "ct",self.counts
+            print("lp",map(float,locProbs))
+            print("ct",self.counts)
         while(maxp<self.certainty):
             #decide where to seach next
 
@@ -174,9 +174,9 @@ class BBChop:
 
 
             if debug:
-                print "lp",map(float,locProbs)
-                print "e",float(entropy(locProbs)),map(float,entropyResults)
-                print "fp",map(float,findProbs)
+                print("lp",map(float,locProbs))
+                print("e",float(entropy(locProbs)),map(float,entropyResults))
+                print("fp",map(float,findProbs))
                 
             (whereabouts,maxp) = findMax(locProbs)
 

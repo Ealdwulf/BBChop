@@ -71,7 +71,7 @@ def makeStat(seed,rate=None,minRate=None,maxRate=None,N=None,prior=None,cert=Non
         finder.restoreCheckpoint(prior,copy.copy(counts))
     
     key=(rate,loc,N,cert,counts[-1][0],counts[-1][1],likelihoodObj.name().strip(),seed)
-    if statDb.has_key(key):
+    if key in statDb:
         (tests,guess,right)=statDb.get(key)
         sys.stdout.write('.')
         sys.stdout.flush()
@@ -110,7 +110,7 @@ class getAvgTests:
         self.avg=self.tot/self.num
 
         self.sd=math.sqrt(self.totSq/self.num-self.avg*self.avg)
-        #print self.avg,self.sd
+        #print(self.avg,self.sd)
         return (self.sd/self.num>=(self.avg/self.limit)) or (self.num<5)
 
     def stats(self):
@@ -136,10 +136,10 @@ def makeStats(NRange,rateCountList,certRange,each,likelihoodObjs):
                     
                     for i in range(each):
                         a.next()
-                    print
+                    print()
                     
            
-                print "took",time.clock()-start,"seconds"
+                print ("took",time.clock()-start,"seconds")
                     
 
 

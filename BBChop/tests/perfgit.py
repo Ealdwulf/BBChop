@@ -13,7 +13,7 @@ os.environ['TEST_ANCESTRY'] = ancFname
 
 
 def sysc(cmd):
-    print cmd,"->"
+    print(cmd,"->")
     os.system(cmd)
 
 sysc("mkdir -p "+testDir)

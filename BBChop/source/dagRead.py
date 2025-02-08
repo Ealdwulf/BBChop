@@ -102,7 +102,7 @@ def read(inputFile):
 
     # which node id is where
     dagLocs={}
-    for i in xrange(len(identifiers)):
+    for i in range(len(identifiers)):
         dagLocs[identifiers[i]]=i
 
     

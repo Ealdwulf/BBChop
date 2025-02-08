@@ -44,7 +44,7 @@ for n in range(50,1000,50):
         junk=evidence.entropiesFast(counts,locPrior,likelihoods.singleRateCalc,d)
         end=time.clock()
         out.write("%d,%f\n" % (n,(end-start)))
-    print n
+    print(n)
 
 out.close()
                   

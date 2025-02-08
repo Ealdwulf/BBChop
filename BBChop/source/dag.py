@@ -96,26 +96,26 @@ def findCover(soFar,covered,node,parents):
 
 class dagX(absDag):
     def __init__(self,parents,N):
-        print "Analysing DAG structure...",
+        print("Analysing DAG structure...",end="")
         sys.stdout.flush()
         self.parents=parents
         
-        children=[[] for i in xrange(N)]
+        children=[[] for i in range(N)]
         
 
-        for i in xrange(N):
+        for i in range(N):
             for p in parents[i]:
                 children[p].append(i)
 
         self.children=children
             
         # a linear stretch ends if a node has multiple children or its child has multiple parents
-        self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in xrange(N)] 
+        self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in range(N)] 
         # a linear stretch starts if a node has multiple parents or its parent has multiple children
-        self.linearStart=[len(parents[i])!=1 or len(children[parents[i][0]])!=1 for i in xrange(N)]
+        self.linearStart=[len(parents[i])!=1 or len(children[parents[i][0]])!=1 for i in range(N)]
 
-        loc=[set([i]) for i in xrange(N)]
-        empty=[set() for i in xrange(N)]
+        loc=[set([i]) for i in range(N)]
+        empty=[set() for i in range(N)]
         locE=listCond(self.linearEnd,loc,empty)
         locS=listCond(self.linearStart,loc,empty)
         
@@ -134,7 +134,7 @@ class dagX(absDag):
         self.AfterExpr = self.cseAfter.getExpList(self.multiAfter)
 
 
-        print "done"
+        print("done")
     # The 'unique' versions of the methods do not assume that the combination function is idempotent. 
         
     def combUptoUnique(self,values,comb):
@@ -158,7 +158,7 @@ class dagX(absDag):
     def combUptoLinear(self,values,comb):
         res=[comb([])]*len(values)
 
-        for i in xrange(len(values)):
+        for i in range(len(values)):
             if not self.linearStart[i]:
                 res[i]=comb([comb([values[j],res[j]]) for j in self.parents[i]])
         return res
@@ -167,7 +167,7 @@ class dagX(absDag):
     def combAfterLinear(self,values,comb):
         res=[comb([])]*len(values)
 
-        for i in reversed(xrange(len(values))):
+        for i in reversed(range(len(values))):
             if not self.linearEnd[i]:
                 res[i]=comb([comb([values[j],res[j]]) for j in self.children[i]])
         return res
@@ -198,7 +198,7 @@ class dagX(absDag):
     def combUpto(self,values,comb):
         res=[comb([])]*len(values)
 
-        for i in xrange(len(values)):
+        for i in range(len(values)):
             res[i]=comb([comb([values[j],res[j]]) for j in self.parents[i]])
         return res
 
@@ -207,7 +207,7 @@ class dagX(absDag):
     def combAfter(self,values,comb):
         res=[comb([])]*len(values)
         
-        for i in reversed(xrange(len(values))):
+        for i in reversed(range(len(values))):
             res[i]=comb([comb([values[j],res[j]]) for j in self.children[i]])
         return res
 
@@ -278,7 +278,7 @@ listDagObj=listDag()
 
 
 def linearTestDag(N):
-    parents=['%d %d' %(a+1,a) for a in xrange(N-1)]
+    parents=['%d %d' %(a+1,a) for a in range(N-1)]
     parents[:0]='0'
     return dag(parents,N)
 

@@ -13,7 +13,7 @@ class doExit(Exception):
 
 
 isGit = os.environ['TEST_SEARCHER']=='git'
-print isGit
+print(isGit)
 try:
     ancestryFilename=os.environ['TEST_ANCESTRY']
     testDir = os.environ["TEST_DIR"]
@@ -42,10 +42,10 @@ try:
 
     
     if t.test(where):
-        print "bad"
+        print("bad")
         raise doExit(1)
     else:
-        print "good"
+        print("good")
         raise doExit(0)
 
 except doExit, e:

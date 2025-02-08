@@ -75,28 +75,28 @@ nodeList.insert(0,'heads')
 # sources in directed graphs
 maxId=len(nodeList)
 
-for i in xrange(len(nodeList)):
+for i in range(len(nodeList)):
     hash2Id[nodeList[i]]=maxId-i
 
 
-print """
+print("""
 graph [
     directed 0
-"""
+""")
 
 for hash in nodeList:
     
-    print "node ["
-    print "id ",hash2Id[hash]
-    print 'label "',hash,'"'
-    print ']'
+    print("node [")
+    print("id ",hash2Id[hash])
+    print('label "',hash,'"')
+    print(']')
     
     for p in nodes[hash]['parents']:
         if p in hash2Id:
-            print "edge ["
-            print "source ",hash2Id[hash]
-            print "target ",hash2Id[p]
-            print "]"
+            print("edge [")
+            print("source ",hash2Id[hash])
+            print("target ",hash2Id[p])
+            print("]")
 
-print "]"
+print("]")
 

@@ -61,19 +61,19 @@ class detect:
         else:
             ret= False
         if self.debug:
-            print where,self.loc,ret
+            print(where,self.loc,ret)
         return ret
             
 
     def printLocs(self):
         for l in self.locs:
-            print l,
-        print 
+            print(l,end="")
+        print()
 
 
     def statusCallback(self,ended,mostLikely,mostLikelyProb,probs,counts):
         printX=400
         if self.debug or (self.tests % printX)==(printX-1):
-            print ended,mostLikely,mostLikelyProb,self.tests
+            print(ended,mostLikely,mostLikelyProb,self.tests)
 
 

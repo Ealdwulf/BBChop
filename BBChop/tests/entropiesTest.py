@@ -57,7 +57,7 @@ import pdb
 
 
 def testEntropyFunc(entropyFunc1,entropyFunc2,likelihoodArg1,likelihoodArg2,falsePos=False,falseNeg=False,maxCount=10,randomDag=False):
-    print "testing " ,entropyFunc1.func_name,entropyFunc2.func_name,likelihoodArg1.name(),likelihoodArg2.name(),"maxCount=",maxCount,"randomDag=",randomDag
+    print("testing " ,entropyFunc1.__name__,entropyFunc2.__name__,likelihoodArg1.name(),likelihoodArg2.name(),"maxCount=",maxCount,"randomDag=",randomDag)
     
     fail=False
     for t in  range(tests):
@@ -73,24 +73,24 @@ def testEntropyFunc(entropyFunc1,entropyFunc2,likelihoodArg1,likelihoodArg2,fals
     
         thisFail=False
         if not rough_eq(c1,c2):
-            print "Error:\t",c1,c2
+            print("Error:\t",c1,c2)
             thisFail=True
             
         for j in range(n):
     #        print "entropy:\t ",j,e1[j],e2[j] #,max(e1[j]/e2[j],e2[j]/e1[j])
             if not rough_eq(e1[j],e2[j]):
-                print "Error:\t",e1[j],e2[j]
+                print("Error:\t",e1[j],e2[j])
                 thisFail=True
     
         if thisFail:
             fail=True
-            print "test %d failed!" % t
+            print("test %d failed!" % t)
         else:
-            print "test %d passed" % t
+            print("test %d passed" % t)
     if fail:
-        print "FAILED!"
+        print("FAILED!")
     else:
-        print "PASSED!"
+        print("PASSED!")
 
     return fail
 

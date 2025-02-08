@@ -25,9 +25,9 @@ tailWeight=0.2
 branchWeight=0.6
 
 def sortDec(d,i,j):
-    if d.has_key((i,j)):
+    if (i,j) in d:
         return -1
-    elif d.has_key((j,i)):
+    elif (j,i) in d:
         return 1
     else:
         return 0
@@ -95,7 +95,7 @@ class rdag:
     def sort(self):
 
         index=[]
-        rest=range(len(self.nodes))
+        rest=list(range(len(self.nodes)))
 
 
         # dumb selection sort
@@ -120,10 +120,10 @@ class rdag:
 def printRel(r,N):
     for i in range(N):
         for j in range(N):
-            if r.has_key((i,j)):
-                print "1",
+            if (i,j) in r:
+                print("1",end="")
             else: 
-                print "0",
+                print("0",end="")
         print 
 
                
@@ -170,4 +170,4 @@ if __name__=='__main__':
     random.seed(1)
     r=randomdag(10)
     
-    print r
+    print(r)
