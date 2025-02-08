@@ -32,7 +32,7 @@ class collStats:
         collated={}
         for datum in self.data:
             key=copy.copy(datum)
-            
+
             nonKeyList=[x,y]+nonKey
             nonKeyInd=[(self.names[i],i) for i in nonKeyList]
             nonKeyInd.sort(key=lind)
@@ -50,7 +50,7 @@ class collStats:
             term={'x':datum[xi],'y':datum[yi]}
             collated[key].append(term)
         return collated
-                
+
 def combYs(terms,comb,errcomb=None):
     xind={}
 
@@ -60,7 +60,7 @@ def combYs(terms,comb,errcomb=None):
         if not x in xind:
             xind[x]=[]
         xind[x].append(y)
-        
+
 
     xlist=[]
     for (x,ys) in xind.iteritems():
@@ -72,11 +72,11 @@ def combYs(terms,comb,errcomb=None):
     xlist.sort(key=lind)
     return xlist
 
-            
+
 def collAllStats(stats,comb,errcomb=None):
     res={}
     for (k,terms) in stats.iteritems():
         c=combYs(terms,comb,errcomb)
         res[k]=c
     return res
-                
+

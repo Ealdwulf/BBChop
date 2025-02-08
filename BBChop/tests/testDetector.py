@@ -63,7 +63,7 @@ class detect:
         if self.debug:
             print(where,self.loc,ret)
         return ret
-            
+
 
     def printLocs(self):
         for l in self.locs:

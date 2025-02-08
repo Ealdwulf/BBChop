@@ -55,7 +55,7 @@ class CommonSubExpressions:
 
     # internal function to add a binary expression to the list of 
     # things to calculate. 
-    
+
     def getBinaryExp(self,a,b):
         x=[a,b]
         x.sort()
@@ -120,8 +120,8 @@ class CommonSubExpressions:
                 a=nl[0]
                 next.append((a[virt]//2,a[loc]))
                 nl.popleft()
-                
-                                
+
+
             nl=next
         return nl[0][loc]
 
@@ -151,7 +151,7 @@ class expListCalc:
         temp=self.cse.doCalc(values,comb,nil)
         res = [temp[self.expList[i]] for i in range(len(self.expList))]
         return res
-        
+
 
 # to increase the commonality, this function is used to 
 # sort the ground terms of all expressions we calculate.

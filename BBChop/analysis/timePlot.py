@@ -46,7 +46,7 @@ for (N,times) in coll:
     y.append(numpy.average(times))
     yerr.append(numpy.std(times))
 
-    
+
 title("Average time taken for entropy calculation")
 ylabel('seconds')
 xlabel('number of revisions')

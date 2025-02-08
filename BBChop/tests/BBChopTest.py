@@ -30,14 +30,14 @@ N=10
 prior=[ 1/float(N) for i in range(N)]
 cert=0.9
 
-trials=100
+trials=1000
 
 def testChop(likelihoodObj,randomDag,falseNeg,multi):
     tests=0
     right=0
     wrong=[]
     totalLooks=0.0
-    
+
     for k in range(trials):
 
         random.seed(k+1)
@@ -48,31 +48,31 @@ def testChop(likelihoodObj,randomDag,falseNeg,multi):
             rate=1
         tester=detect(N,rate,dagObj,multi)
         finder=BBChop.BBChop(prior,cert,tester,likelihoodObj,dagObj)
-        
+
         loc=tester.loc
         guess=finder.search()
-    
+
         totalLooks+=finder.total
-    
-        
+
+
         tests+=tester.tests
         if(loc==guess):
             right=right+1
         else:
             wrong.append(guess)
-    
+
         #if((k+1)%10 == 0):
         print("test ",k," right%=",100.0*right/(k+1),"right=",loc==guess,"totallooks=",totalLooks/(k+1),"looks=",finder.total,"rate=",rate)
-            
+
         #if((k+1)%100 ==0):
         #   tester.printLocs()
-	
+
     print("right:",right," out of",trials,tests/trials)
     return (float(right)/trials)<cert
 
 def testFunc(case):
     print("testing " ,case.likelihoodObj.name(),"randomDag=",case.randomDag)
-    
+
     return testChop(case.likelihoodObj,case.randomDag,case.falseNeg,case.multi)
 
 

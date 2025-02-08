@@ -13,12 +13,12 @@ file=open(fname,"r")
 import pdb
 for line in file:
     tokens=line.split()
-    
+
     if hasTstamp:
         tstamp=tokens.pop(0)
 
     curr=tokens.pop(0)
-    
+
     parents=tokens
 
     nodes[curr]={'parents':parents,'children':[]}
@@ -85,12 +85,12 @@ graph [
 """)
 
 for hash in nodeList:
-    
+
     print("node [")
     print("id ",hash2Id[hash])
     print('label "',hash,'"')
     print(']')
-    
+
     for p in nodes[hash]['parents']:
         if p in hash2Id:
             print("edge [")

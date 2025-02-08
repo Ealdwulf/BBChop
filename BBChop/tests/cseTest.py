@@ -17,7 +17,7 @@ def union(args):
     for a in args:
         res=res.union(a)
     return res
-    
+
 
 def randomExp(pop):
     sw=random.randint(0,2)
@@ -32,7 +32,7 @@ def randomExp(pop):
 
     exp=set(random.sample(pop,num))
     return exp
-    
+
 fail=False
 
 
@@ -40,10 +40,10 @@ for i in range(numTests):
     random.seed(i)
     pop=range(numVals)
     vals=[set([v]) for v in pop]
-    
+
     explist=[randomExp(pop) for k in range(numExps)]
 
-    
+
     tcse=cse.CommonSubExpressions(numVals)
 
     expl=tcse.getExpList(explist)
@@ -51,7 +51,7 @@ for i in range(numTests):
     res=expl.doCalc(vals,union,set())
 
     print("test %d " % i,end="")
-    
+
     if res!=explist:
         print("fail")
         fail=True
@@ -64,4 +64,4 @@ if fail:
 else:
     print("PASSED")
     sys.exit(0)
-    
+

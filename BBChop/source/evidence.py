@@ -46,34 +46,34 @@ def entropies(counts,locPrior,likelihoodsObj,dag):
     for i in range(len(locProbs)):
         testFound=copy.copy(counts)
         testNotFound=copy.copy(counts)
-        
+
         (t,d)=counts[i]
         testFound[i]=(t,d+1)
         testNotFound[i]=(t+1,d)
-        
+
         try:
             (probsIfFound,evDProb)=likelihoodsObj.probs(testFound,locPrior,dag)
             eFound=entropyFunc(probsIfFound)
         except Impossible:
             eFound=numberType.zero
             evDProb=numberType.zero
-        
+
         try:
             (probsIfNotFound,junk)=likelihoodsObj.probs(testNotFound,locPrior,dag)
             eNotFound=entropyFunc(probsIfNotFound)
         except Impossible:
             eNotFound=numberType.zero
-        
+
         # probability of finding at i:
-        
+
         findProb=evDProb/evProb
         findProbs.append(findProb)
         if debug: print("a",eFound,eNotFound,evDProb,probsIfFound)
-        
+
         # expected entropy after testing at i:
-        
+
         eResult=eFound*findProb+eNotFound*(numberType.const(1)-findProb)
-        
+
         entropyResults.append(eResult)
 
     return (currEntropy,entropyResults,findProbs)
@@ -92,7 +92,7 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
     (rsum,osum)=lk.orig()
     currEntropy=rsum/numberType.pow(osum,entropy.alpha)
     currEntropy =numberType.log(currEntropy)*renyiFactor
-    
+
     entropyResults=[]
     findProbs=[]
 
@@ -104,7 +104,7 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
         #entropyFound:normalise
         try: 
             eFound=renyLksFoundTot/numberType.pow(evDProb,entropy.alpha)
-            
+
             eFound=numberType.log(eFound)*renyiFactor
         except numberType.zeroDivisionError:
             eFound=0
@@ -123,9 +123,9 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
 
         # expected entropy after testing at i:
         if debug: print("b",eFound,eNotFound,findProb)
-        
+
         eResult=eFound*findProb+eNotFound*(1-findProb)
-        
+
         entropyResults.append(eResult)
 
     return (currEntropy,entropyResults,findProbs)

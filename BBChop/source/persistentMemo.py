@@ -26,7 +26,7 @@ class memo:
             hobj.update(argsStr)
             d=hobj.hexdigest()
             fname=os.path.join(memoDir,d)
-    
+
             if d in memoObjs:
                 f=open(fname,"rb")
                 ret=pickle.load(f)
@@ -41,5 +41,5 @@ class memo:
                 return ret
         else:
             return self.theClass(*args)
-            
-        
+
+

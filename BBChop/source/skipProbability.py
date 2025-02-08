@@ -26,7 +26,7 @@ class doArithDecay:
         if len(adjacent)==0:
             return numberType.zero
         decayed = [a+self.decayFactor for a in adjacent]
-        
+
         return max(decayed)
 
 
@@ -49,7 +49,7 @@ class skipProbsDecay:
 
         upto  = myDag.combUpto(initial,self.combFunc)
         after = myDag.combAfter(initial,self.combFunc)
-        
+
         res = [max(initial[i],upto[i],after[i]) for i in range(len(skipped))]
         return res
-        
+

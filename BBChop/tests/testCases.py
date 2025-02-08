@@ -29,7 +29,7 @@ class struct:
         for (key,val) in kwargs.items():
             self.__dict__[key] = val
 
-    
+
 
 
 single=       struct(likelihoodObj=likelihoods.singleRateCalc,   multi=False, falsePos=False,falseNeg=True)
@@ -51,7 +51,7 @@ def entropyTestCases():
                 yield res
 
 
-        
+
 def BBChopTestCases():
     for randomDag in [False,True]:
         for lik in likList:
@@ -61,12 +61,12 @@ def BBChopTestCases():
 
 
 def runTests(testFunc,casesFunc):
-    
+
     fail=False
 
-        
+
     if len(sys.argv)==1:
-        
+
     #    for (l1,l2,falsePos,falseNeg,maxCount,randomDag) in testTab:
         for case in casesFunc():
             tfail= testFunc(case)
@@ -81,10 +81,10 @@ def runTests(testFunc,casesFunc):
         testTab=[t for t in  casesFunc()]
         case=testTab[testNum]
         tfail=  testFunc(case)
-    
+
         fail=fail or tfail 
-    
-    
+
+
     if fail:
         print("FAILED!")
         sys.exit(1)
@@ -105,14 +105,14 @@ def testDag(N,randomDag=False):
 
 def randomEntropyData(seed,N,dag,falsePos=False,falseNeg=False,maxCount=10):
     random.seed(seed)
-        
+
     loc=random.randint(0,N-1)
-    
+
     locList=[False for x in range(N)]
     locList[loc]=True
 
     detectable=listOr(dag.anyUpto(locList),locList)
-        
+
 
 
     counts=[(random.randint(0,maxCount),random.randint(0,maxCount)) for x in range(N)]
@@ -126,6 +126,6 @@ def randomEntropyData(seed,N,dag,falsePos=False,falseNeg=False,maxCount=10):
     UlocPrior=[random.random() for x in range(N)]
     norm=sum(UlocPrior)
     locPrior=[numberType.const(i/norm) for i in UlocPrior]
-    
+
     return (counts,locPrior)
 

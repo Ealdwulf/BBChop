@@ -47,5 +47,5 @@ for n in range(50,1000,50):
     print(n)
 
 out.close()
-                  
+
 

@@ -81,7 +81,7 @@ def sortDag(dag):
 def read(inputFile):
 
     dag={}
-    
+
     for line in inputFile:
 
         lineParts=line.split()
@@ -94,7 +94,7 @@ def read(inputFile):
 
         dag[node]=parents
 
-    
+
 
     # node ids in sorted order
     identifiers=sortDag(dag)
@@ -105,7 +105,7 @@ def read(inputFile):
     for i in range(len(identifiers)):
         dagLocs[identifiers[i]]=i
 
-    
+
     dagStruct=[]
     for id in identifiers:
         parentLocs=[dagLocs[p] for p in dag[id]]

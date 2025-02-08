@@ -35,7 +35,7 @@ def getStatsOld(fileName):
         line=line.replace('(','')
         line=line.replace(')','')
         (rate,loc,N,cert,tests,guess,right,lname,lastCountT,lastCountD,seed)=line.split(',')
-        
+
         data.append([float(rate),int(loc),int(N),float(cert),float(tests),int(guess),right.strip()=='True',lname.strip(),int(lastCountT),int(lastCountD),int(seed)])
     f.close()
     return collStats.collStats(data,names)
@@ -77,7 +77,7 @@ def plots(pfunc,s,atitle,x,y,nonKey,ycomb,legloc,fname,labfn,errcomb=None,axisAr
         print("writing ",fname)
         g1=s.collate(x,y,nonKey)
         g1c=collStats.collAllStats(g1,ycomb,errcomb)
-        
+
         title(atitle)
         xlabel(x)
         ylabel(y)
@@ -110,11 +110,11 @@ def countSucc(list):
 
 def labfn2(key):
     (cert,lf,lct,lcd)=key
-    
+
     return "%s lastCount=(%d,%d)" %(lf,lct,lcd)
 def labfn3(key):
     (cert,lf)=key
-    
+
     return "cert=%1.2f %s" %(cert,lf)
 
 

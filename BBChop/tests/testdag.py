@@ -33,7 +33,7 @@ class tester:
         self.ref=ref
         self.test=test
 
-    
+
     def check(self,meth,num,*args):
         res_ref= getattr(self.ref,meth)(*args)
         res_test=getattr(self.test,meth)(*args)
@@ -44,8 +44,8 @@ class tester:
         else:
             print("passed  %d, %s" % (num,meth))
             return False
-        
-    
+
+
 
 for i in range(numTests):
     random.seed(i)
@@ -73,4 +73,4 @@ if fail:
 else:
     print("PASSED")
     sys.exit(0)
-    
+

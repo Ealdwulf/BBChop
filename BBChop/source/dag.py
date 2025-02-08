@@ -40,20 +40,20 @@ def union(args):
     for a in args:
         res=res.union(a)
     return res
-    
+
 
 
 # abstract dag class: defines sum,and type functions in terms of comb functions
 class absDag:
     def sumUpto(self,values):
         return self.combUptoUnique(values,sum)
-    
+
     def sumAfter(self,values):
         return self.combAfterUnique(values,sum)
-        
+
     def anyUpto(self,values):
         return self.combUpto(values,any)
-    
+
     def anyAfter(self,values):
         return self.combAfter(values,any)
 
@@ -64,18 +64,18 @@ class absDag:
 
     def prodAfter(self,values):
         return self.combAfterUnique(values,prod)
-    
+
     def unionUpto(self,values):
         return self.combUpto(values,union)
-        
+
     def unionAfter(self,values):
         return self.combAfter(values,union)
-        
+
 import pdb
 
 def findCover(soFar,covered,node,parents):
     ret=[]
-    
+
 
     for p in parents[node]:
         if len(covered[p].intersection(soFar))>0:
@@ -88,27 +88,27 @@ def findCover(soFar,covered,node,parents):
             soFar=soFar.union(covered[p])
 
     return (ret,soFar)
-        
 
 
-    
-                
+
+
+
 
 class dagX(absDag):
     def __init__(self,parents,N):
         print("Analysing DAG structure...",end="")
         sys.stdout.flush()
         self.parents=parents
-        
+
         children=[[] for i in range(N)]
-        
+
 
         for i in range(N):
             for p in parents[i]:
                 children[p].append(i)
 
         self.children=children
-            
+
         # a linear stretch ends if a node has multiple children or its child has multiple parents
         self.linearEnd=  [len(children[i])!=1 or len(parents[children[i][0]])!=1 for i in range(N)] 
         # a linear stretch starts if a node has multiple parents or its parent has multiple children
@@ -118,25 +118,25 @@ class dagX(absDag):
         empty=[set() for i in range(N)]
         locE=listCond(self.linearEnd,loc,empty)
         locS=listCond(self.linearStart,loc,empty)
-        
+
         self.multiUpto=self.unionUpto(locE)
         self.multiUpto=listCond(self.linearStart,self.multiUpto,empty)
-        
+
         self.multiAfter=self.unionAfter(locS)
         self.multiAfter=listCond(self.linearEnd,self.multiAfter,empty)
-        
+
 
 
         self.cseUpto = cse.CommonSubExpressions(N)
         self.cseAfter = cse.CommonSubExpressions(N)
-        
+
         self.uptoExpr =  self.cseUpto.getExpList(self.multiUpto) 
         self.AfterExpr = self.cseAfter.getExpList(self.multiAfter)
 
 
         print("done")
     # The 'unique' versions of the methods do not assume that the combination function is idempotent. 
-        
+
     def combUptoUnique(self,values,comb):
 
         linear=self.combUptoLinear(values,comb)
@@ -172,15 +172,15 @@ class dagX(absDag):
                 res[i]=comb([comb([values[j],res[j]]) for j in self.children[i]])
         return res
 
-       
+
     def combUptoMulti(self,values,comb):
-        
+
         res = self.uptoExpr.doCalc(values,comb,comb([]))
 
         return res
 
     def combAfterMulti(self,values,comb):
-        
+
         res = self.AfterExpr.doCalc(values,comb,comb([]))
 
         return res
@@ -206,7 +206,7 @@ class dagX(absDag):
     # for each location, return the sum of higher locations from values
     def combAfter(self,values,comb):
         res=[comb([])]*len(values)
-        
+
         for i in reversed(range(len(values))):
             res[i]=comb([comb([values[j],res[j]]) for j in self.children[i]])
         return res
@@ -238,7 +238,7 @@ class listDag(absDag):
             return []
         else:
             return [loc-1]
-        
+
 
     def combUptoUnique(self,values,comb):
         tot=comb([])
@@ -263,7 +263,7 @@ class listDag(absDag):
     def combAfter(self,values,comb):
         return self.combAfterUnique(values,comb)
 
-    
+
     def sumOther(self,values):
         # no others in total order
 

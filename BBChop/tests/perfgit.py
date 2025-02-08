@@ -34,7 +34,7 @@ def commonBefore(rev,searcher):
     os.environ['TEST_LOC']=str(rev)
     os.environ['TEST_SEARCHER']=searcher
     sysc("cp /dev/null $TEST_DIR/tries")
-    
+
 def commonAfter(where,rev):
         sysc('wc -l  $TEST_DIR/tries >$TEST_DIR/count')
         count=int(open(testDir+"/count","r").readline().split()[0])
@@ -63,7 +63,7 @@ def testBBChop(rev):
         sysc("grep 'Search complete' $TEST_DIR/bisectLog > $TEST_DIR/result")
         where=open(testDir+"/result").readline().split()[6]
         return commonAfter(where,rev)
-        
+
     finally:
         pass
 

@@ -49,7 +49,7 @@ class timer:
         self.times.append(self.currTimes)
         self.currTimes=[]
         self.log.write(out)
-    
+
     def close(self):
         self.log.close()
 
@@ -90,21 +90,21 @@ for i in range(1,10):
     locations=len(identifiers)
     prior=[ 1/float(locations) for i in range(locations)]
     f.close()
-    
+
 
     runner.startSet(str(i))
-    
+
     thisDag=runner.run(dag.dag,(parents,len(parents)))
 
-    
+
     finder=BBChop(prior,0.9,fakeTest(),likelihoods.singleRateCalc,thisDag)
 
 
     runner.run(runFinder,[finder])
-    
+
     runner.write(" ")
-    
+
 
 
 runner.close()
-    
+

@@ -96,14 +96,14 @@ def pe(f,ds,ts,r,i):
     for x in range(i,len(ds)):
         p=p*f(ds[x],ds[x]+ts[x],r) 
     return p
-    
-        
+
+
 #FIXME why is t1(nD)==t1(binD)?
 def t1(f,ds,ts,r):
     pl=[pe(f,ds,ts,r,x) for x in range(len(ds))]
     pt=sum(pl)
     return [pl[x]/pt for x in range(len(ds))]
-    
+
 
 def powList(l,p):
     return [numberType.pow(x,p) for x in l]

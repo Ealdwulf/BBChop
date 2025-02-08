@@ -29,11 +29,11 @@ import dag
 class logdetect(detect):
     def __init__(self,len,rate,dag,multi,loc=None,debug=False):
         detect.__init__(self,len,rate,dag,multi,loc,debug)
-        
+
         self.probCollect=[]
 
     def statusCallback(self,ended,mostLikely,mostLikelyProb,probs,counts):
-        
+
         thisProbs=[float(x) for x in probs]
 
         self.probCollect.append(thisProbs)
@@ -49,13 +49,13 @@ from copy import copy
 def normalise(v):
     s=sum(v)
     return [x/s for x in v]
-    
+
 
 class gammaNorm(mcolors.Normalize):
     def __init__(self, vmin=None, vmax=None, clip = True,gamma=1.0):
         mcolors.Normalize.__init__(self,vmin,vmax,clip)
         self.gamma=gamma
-    
+
     def __call__(self,value,clip=None):
         y= mcolors.Normalize.__call__(self,value,clip)
         return y**self.gamma
@@ -71,7 +71,7 @@ def deterministic_chop(N,loc):
     min=0
     max=N-1
 
-    
+
     res=[normalise(prior)]
 
     while max!=min:
@@ -106,7 +106,7 @@ def probabalistic_chop(N,loc):
     right=(loc==guess)
     return tester.get_table()
 
-        
+
 d1=deterministic_chop(64,9)
 d2=probabalistic_chop(64,9)
 

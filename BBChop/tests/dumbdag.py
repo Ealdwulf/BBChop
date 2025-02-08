@@ -36,36 +36,36 @@ class DAGWrongLength(Exception): pass
 class absDag:
     def sumUpto(self,values):
         return self.combUpto(values,sum)
-    
+
     def sumAfter(self,values):
         return self.combAfter(values,sum)
-        
+
     def anyUpto(self,values):
         return self.combUpto(values,any)
-    
+
     def anyAfter(self,values):
         return self.combAfter(values,any)
 
     def prodAfter(self,values):
         return self.combAfter(values,prod)
-    
 
-   
+
+
 
 class dag(absDag):
     def __init__(self,parents,N):
 
         self.parents=parents
-        
+
         children=[[] for i in range(N)]
-        
+
 
         for i in range(N):
             for p in parents[i]:
                 children[p].append(i)
 
         self.children=children
-            
+
         childRel=dagAlg.childLists2Rel(self.children)
         self.decendentRel=dagAlg.transitiveClosure(childRel,N)
 

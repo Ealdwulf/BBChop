@@ -48,10 +48,10 @@ if numberType == 'mpmath':
     overflowError=OverflowError
 
 elif numberType == 'float':
-    
+
     def const(str):
         return float(str)
-    
+
     power=math.pow
     log=math.log
     exp=math.exp

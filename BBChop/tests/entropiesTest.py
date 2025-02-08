@@ -41,7 +41,7 @@ def rough_eq(a,b):
 
     min_a=min(minP_a,minS_a)
     max_a=max(maxP_a,maxS_a)
-        
+
 
     return (min_a<=b) and (b <=max_a)
 
@@ -58,30 +58,30 @@ import pdb
 
 def testEntropyFunc(entropyFunc1,entropyFunc2,likelihoodArg1,likelihoodArg2,falsePos=False,falseNeg=False,maxCount=10,randomDag=False):
     print("testing " ,entropyFunc1.__name__,entropyFunc2.__name__,likelihoodArg1.name(),likelihoodArg2.name(),"maxCount=",maxCount,"randomDag=",randomDag)
-    
+
     fail=False
     for t in  range(tests):
 
         d=testCases.testDag(n,randomDag)
         (counts,locPrior)=testCases.randomEntropyData(t+1,n,d,falsePos,falseNeg,maxCount)
-        
-    
+
+
 #        pdb.set_trace()
         (c1,e1,f1)=entropyFunc1(counts,locPrior,likelihoodArg1,d)
     #    pdb.set_trace()
         (c2,e2,f2)=entropyFunc2(counts,locPrior,likelihoodArg2,d)
-    
+
         thisFail=False
         if not rough_eq(c1,c2):
             print("Error:\t",c1,c2)
             thisFail=True
-            
+
         for j in range(n):
     #        print "entropy:\t ",j,e1[j],e2[j] #,max(e1[j]/e2[j],e2[j]/e1[j])
             if not rough_eq(e1[j],e2[j]):
                 print("Error:\t",e1[j],e2[j])
                 thisFail=True
-    
+
         if thisFail:
             fail=True
             print("test %d failed!" % t)
@@ -107,7 +107,7 @@ testCases.runTests(testFunc,testCases.entropyTestCases)
 
 
 
-    
-    
+
+
 
 

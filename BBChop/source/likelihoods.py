@@ -29,25 +29,25 @@ class Impossible(Exception):
 # special object used to identify zero even though for the most part we are using floating point.
 
 Zero=False
-    
+
 
 def g(pred,Ti,Di,Lprior):
     if(pred):
         return numberType.zero
     else:
         return Beta(Di+1,Ti+1)*Lprior
-    
+
 def probsFromLikelihoods(likelihoods,likelihoodTot):
     #normalise locProbs
     probs=[]
 
     if all([l is Zero for l in likelihoods]):
         raise Impossible
-    
+
     for li in likelihoods :
         probs.append(li/likelihoodTot)
     return probs
-        
+
 # returns a posteriori P(L|E) and a priori P(E) (that is, P(E|L) marginalised over L)
 def probs(counts,locPrior,likelihoodsFunc,dag,doprint=None):    
     (ls,lsTot,junk)=likelihoodsFunc(counts,locPrior,dag)
@@ -106,7 +106,7 @@ def singleRate(counts,locPrior,dag):
         gsFound.append(gf)
         gsNFound.append(gn)
 
-    
+
 
     return (gs,gtot,(gsFound,gsNFound))
 
@@ -160,7 +160,7 @@ def multiRate(counts,locPrior,dag):
         gs.append(gi)
 
 
-    
+
 
     return (gs,gtot,(betas1,betasF,betasN))
 
@@ -201,28 +201,28 @@ class likelihoodCalc:
             self.contribOther(renyi,whichDat),
             self.contribAfter(renyi,whichDat))
         return tot
-    
+
     # calculate the 4 different lists of totals, which will later be returned by __getitem__().
     def calc(self):
-        
+
         FoundNorms=self.calcOne(False,cFound)        
         NfoundNorms=self.calcOne(False,cNFound)
-        
-        
+
+
         renyiLksFoundTots= self.calcOne(True,cFound)
         renyiLksNFoundTots=self.calcOne(True,cNFound)
-        
+
         # probability of finding at i:
         findProbs=[FoundNorm/self.lksTot for FoundNorm in FoundNorms]
-        
 
-        
+
+
         self.findProbs=findProbs
         self.renyiLksFoundTots=renyiLksFoundTots
         self.renyiLksNFoundTots=renyiLksNFoundTots
         self.FoundNorms=FoundNorms
         self.NfoundNorms=NfoundNorms
-        
+
     # return, for location i: 
     # 1. The probability of detecting at i, given the current evidence
     # 2. The sum of the likelihood (raised to alpha) that the data is at each location, given the current evidence plus
@@ -288,7 +288,7 @@ class singleRateCalcX(likelihoodCalc):
         self.likelihoodDat=switchDat(lks,lksFound,lksNFound,alpha)
         self.calc()
 
-            
+
     def contribSelf(self,renyi,whichDat):
         return self.likelihoodDat[renyi][whichDat]
 
@@ -327,7 +327,7 @@ class multiRateCalcX(likelihoodCalc):
         (lks,lksTot,(betas,betasFound,betasNFound))=multiRate(self.counts,locPrior,self.dag)
 
         self.lksTot=lksTot
-         
+
         self.betasDat=switchDat(betas,betasFound,betasNFound,alpha)
         self.likelihoodDat={False: lks, True: powList(lks,alpha)}
 
@@ -338,9 +338,9 @@ class multiRateCalcX(likelihoodCalc):
         r=listDiv(r,self.betasDat[True][cOrig])
         self.uptoBetas = {False: s, True: r} # 
         self.calc()
-        
 
-            
+
+
     def contribSelf(self,renyi,whichDat):
         return [numberType.zero for i in self.counts] # 'self' contrib included in 'upto'
 
@@ -387,7 +387,7 @@ def deterministic(counts,locPrior,dag):
 
     preds=listOr(dpreds,tpreds)
     z=[Zero for i in counts]
-    
+
     lks=listCond(preds,z,locPrior)
 
     lksTot=sum(lks)
@@ -398,13 +398,13 @@ class deterministicCalcX(likelihoodCalc):
     def __init__(self,counts,locPrior,alpha,dag):
         likelihoodCalc.__init__(self,counts,locPrior,alpha,dag)
         (lks,lksTot,junk)=deterministic(self.counts,locPrior,self.dag)
-    
-        
+
+
         self.lksTot=lksTot
         self.lksDat={False:lks,True:powList(lks,alpha)}
         self.calc()
-    
-    
+
+
     def contribSelf(self,renyi,whichDat):
         if whichDat==cNFound:
             return [Zero for i in self.counts] 
@@ -450,7 +450,7 @@ class likelihood:
     def __init__(self,calcClass,func):
         self.calcClass=calcClass
         self.func=func
-        
+
     def name(self):
         return self.func.__name__
 

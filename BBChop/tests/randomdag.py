@@ -31,7 +31,7 @@ def sortDec(d,i,j):
         return 1
     else:
         return 0
-    
+
 
 class rdag:
     def __init__(self):
@@ -50,7 +50,7 @@ class rdag:
         self.nodes.append(newNode)
         self.nodes[self.bottomNodeIndex].append(len(self.nodes)-1)
         self.bottomNodeIndex=len(self.nodes)-1
-        
+
 
     def addBefore(self,where):
         oldNode=self.nodes[where]
@@ -90,7 +90,7 @@ class rdag:
             for i in reversed(range(len(select))):
                 if not select[i]:
                     self.movechild(two,one,i)
-        
+
 
     def sort(self):
 
@@ -115,8 +115,8 @@ class rdag:
         newdag=[[rindex[j] for j in self.nodes[i]] for i in index]
         self.nodes=newdag
 
-    
-            
+
+
 def printRel(r,N):
     for i in range(N):
         for j in range(N):
@@ -126,7 +126,7 @@ def printRel(r,N):
                 print("0",end="")
         print 
 
-               
+
 
 
 def randomdagDef(N):
@@ -136,9 +136,9 @@ def randomdagDef(N):
 
     rd.sort()
 
-    
+
     parents=[[] for i in range(N)]
-    
+
 
     for i in range(N):
         for c in rd.nodes[i]:
@@ -147,11 +147,11 @@ def randomdagDef(N):
     return parents
 
 
-       
+
 def randomdagTxt(N,parents=None):
     if parents is None:
         parents=randomdagDef(N)
-    
+
     di=[' '.join(map(str,[i]+parents[i])) for i in range(len(parents))]
     return di
 
@@ -162,12 +162,12 @@ def randomdag(N,dagModule=dag,parents=None):
     d=dagModule.dag(parents,N)
 
     return d
-         
 
-    
-        
+
+
+
 if __name__=='__main__':
     random.seed(1)
     r=randomdag(10)
-    
+
     print(r)

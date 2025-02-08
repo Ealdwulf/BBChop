@@ -23,13 +23,13 @@ try:
     for test in range(100):
         N=random.randint(10,100)
         dagDef=randomdag.randomdagTxt(N)
-        
+
         dagDefShuffled=dagDef
         random.shuffle(dagDefShuffled)
-        
+
         (dagIds,dagParents)=dagRead.read(dagDefShuffled)
-        
-        
+
+
         dagCheck=dagDef
         for i in range(len(dagDef)):
             dagTerm=dagIds[i]

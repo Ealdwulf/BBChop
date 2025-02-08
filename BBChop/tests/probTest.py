@@ -57,14 +57,14 @@ def lo(x):
         return "-OO"
     return math.log(float(x)/(1-float(x)))
 for (counts,olist) in occ.iteritems():
-    
+
     (locProbs,findProbs)=BBChop.probs(counts,prior)
     print("c",counts)
 #    pdb.set_trace()
     print("l",map(lo,locProbs))
     sp=[(float(i)/sum(olist)) for i in olist]
     print("s",sum(olist),map(lo,sp))
-    
 
 
-    
+
+
