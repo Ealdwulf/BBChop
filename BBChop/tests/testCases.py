@@ -71,7 +71,7 @@ def runTests(testFunc,casesFunc):
         for case in casesFunc():
             tfail= testFunc(case)
             fail=fail or tfail 
-            if fail:
+            if tfail:
                 print("->FAILED")
             else:
                 print("->PASSED")
