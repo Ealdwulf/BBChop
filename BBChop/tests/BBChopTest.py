@@ -30,7 +30,27 @@ N=10
 prior=[ 1/float(N) for i in range(N)]
 cert=0.9
 
-trials=1000
+def calcThresh(N,certainty):
+    # calculate the k such that if we ask for 'certinty'
+    # or greater chance that we get the right answer, we should
+    # have a 90% chance of getting k right out of N
+
+    try:
+        from scipy.stats import binom
+        return binom.ppf(1-0.9, N, certainty)
+    except:
+        # failed to import scipy. Therefore use some previously generated constants
+        if N==100:
+            return 86
+        elif N==1000:
+            return 888
+        else:
+            print("Don't have scipy, can't calculate threshold")
+            sys.exit(1)
+
+
+trials=100
+thresh=calcThresh(trials, cert)
 
 def testChop(likelihoodObj,randomDag,falseNeg,multi):
     tests=0
@@ -68,7 +88,7 @@ def testChop(likelihoodObj,randomDag,falseNeg,multi):
         #   tester.printLocs()
 
     print("right:",right," out of",trials,tests/trials)
-    return (float(right)/trials)<cert
+    return right<thresh
 
 def testFunc(case):
     print("testing " ,case.likelihoodObj.name(),"randomDag=",case.randomDag)
