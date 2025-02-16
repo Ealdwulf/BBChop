@@ -15,14 +15,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 import sys
-
-from BBChop import likelihoods
+import dag
+import likelihoods
 import copy
 import random
 import randomdag
-from BBChop import dag
-from BBChop.listUtils import cond,listOr
-from BBChop import numberType
+from listUtils import cond,listOr
+import numberType
 
 class struct:
     def __init__(self,**kwargs):

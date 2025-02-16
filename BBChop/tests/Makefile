@@ -28,7 +28,14 @@ all: $(TESTS)
 
 clean: $(TESTS)
 	rm $^
+
+topdir = $(shell (cd ../; pwd))
+PYTHONPATH=$(topdir)/source/
+
 RUNPY=python3
+
+export topdir
+export PYTHONPATH
 
 
 %.test: %.py

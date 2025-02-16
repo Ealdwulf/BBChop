@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 import random
-from BBChop import dag
+import dag
 import copy
 import dagAlg
 
