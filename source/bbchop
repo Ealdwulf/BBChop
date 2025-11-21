@@ -1,0 +1,426 @@
+#!/usr/bin/env python
+
+#    Copyright 2008 Ealdwulf Wuffinga
+
+#    This file is part of BBChop.
+#
+#    BBChop is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    BBChop is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
+
+
+from BBChop.BBChop import BBChop
+import sys
+import getopt
+import os
+from BBChop import likelihoods
+from BBChop import dag
+from BBChop import dagRead
+from BBChop import testLog
+from BBChop import skipProbability
+
+options = "a:c:d:f:g:i:k:l:n:p:rs:t:"
+options_long  = [
+    "ancestry=",
+    "certainty=",
+    "distprior=",
+    "skipdecayfactor=",
+    "log",
+    "identifiers=",
+    "likelihood=",
+    "locations=",
+    "negatives=",
+    "positives=",
+    "resume",
+    "switchscript",
+    "testscript=",
+]
+
+def usage():
+    print("""
+bbchop is a binary search program that works in the presense of false negatives. 
+
+bbchop -l <locations> -c <certainty> [<options>]
+bbchop -a <file>      -c <certainty> [<options>]
+bbchop -i <file>      -c <certainty> [<options>]
+
+
+     -l or --locations <locations>       : number of locations. If this option is used, location identifiers are
+                                           numbers in [0..N)
+     -a or --ancestry <file>             : file containing description of location DAG, one location per line. 
+                                           Each line is of the form <id of location>[<whitespace><id of parent]*
+     -g or --log <file>                  : log test results to file
+     -i or --identifiers <file>          : a file containing a list of location identifiers, one per line.
+
+
+
+     -c or --certainty <certainty>       : terminate if probability of most likely location 
+                                           is at least this value.
+
+     -t or --testscript <test script>    : script to call to test a location. it is passed the location
+                                           identifier as its first argument. It should return 0 for a detection,
+                                           125 if the location is invalid, or and other value in 1..127 for
+                                           a nondetection
+     -s or --switchscript <script>:      : script to call to switch from one location to another. May be used with
+                                           or without testscript. Hook for integration with version control systems.
+
+
+                                         : If no test script is specified, questions are asked via stdio.
+     
+     -p or --positives <positives>       : number of detections seen at the last location (integer,default 0)
+     -n or --negatives <negatives>       : number of non-detecting observations made
+                                         : at the last location (integer, default 0)
+     -k or --likelihood <func>           : likelihood function, currently singlerate,multirate,or deterministic
+     -d or --distprior <file>            : file containing the prior priobabilities for each location, one per line
+     -r or --resume                      : resume testing - load results so far from log file, and continue. 
+                                           Valid only if a og file is specified.
+     -f or --skipdecayfactor <factor>    : assume locations near those which have been skipped are likely also to be skipped.
+                                           (default is to assume that this is not the case). If factor is positive it is 
+                                           taken as a multiplicative decay factor on the probability of skipping (where
+                                           a location which has already been skipped has probability one). If negative,
+                                           it is an arithmetic decay factor.
+
+
+""")
+
+
+def checkarg(arg,checkfunc):
+    try:
+        return checkfunc(arg)
+    except ValueError:
+        return None
+    except TypeError:
+        return None
+
+
+likelihoodSet={"singlerate": likelihoods.singleRateCalc,
+               "multirate": likelihoods.multiRateCalc,
+               "deterministic": likelihoods.deterministicCalc}
+
+def getIdentifiers(fname):
+    try:
+        f=file(fname,"r")
+        
+        res=[l.strip() for l in f]
+        if len(res)==0:
+            return None
+        else:
+            return res
+    except TypeError:        
+        return None   # caller must deal with error
+
+def getPrior(fname,N):
+    f=file(fname,"r")
+    prior=[float(l) for l in f]
+    if len(prior)!=N:
+        raise "Wrong number of entries in prior file"
+    return prior
+    
+
+    
+class Args:        
+
+    def __init__(self):
+        self.testscript=None
+        self.positives=0
+        self.negatives=0
+        self.locations=None
+        self.certainty=None
+        self.identifiers=None
+        self.resume=False
+        self.likelihoodCalc="singlerate"
+        self.logFileName=None
+        self.switchScript=None
+        self.skipProbsFunc=skipProbability.skipProbsSimple
+        
+        skipDecayFactor=None        
+        ancestryFilename=None
+        identifiersFilename=None
+        distPriorFilename=None
+        
+
+        try:
+            (opts,rest) = getopt.gnu_getopt(sys.argv[1:],options,options_long)
+        except getopt.GetoptError:
+            usage()
+            sys.exit(1)
+    
+    
+    
+    
+        for (o,a) in opts:
+            if o in ['-l','--locations']:
+                self.locations=a
+            elif o in ['-a','--ancestry']:
+                ancestryFilename=a
+            elif o in ['-c','--certainty']:
+                self.certainty=a
+            elif o in ['-p','--positives']:
+                self.positives=a
+            elif o in ['-n','--negatives']:
+                self.negatives=a
+            elif o in ['-t','--testscript']:
+                self.testscript=a
+            elif o in ['-k','--likelihood']:
+                self.likelihoodCalc=a
+            elif o in ['-i','--identifiers']:
+                identifiersFilename=a
+            elif o in ['-d','--distprior']:
+                 distPriorFilename=a
+            elif o in ['-r','--resume']:
+                self.resume=True
+            elif o in ['-s','--switchscript']:
+                self.switchScript=a
+            elif o in ['-g','--log']:
+                self.logFileName=a
+            elif o in ['-f','--skipdecayfactor']:
+                skipDecayFactor=a
+            
+    
+    
+        self.locations=checkarg(self.locations,int)
+        self.certainty=checkarg(self.certainty,float)
+        self.negatives=checkarg(self.negatives,int)
+        self.positives=checkarg(self.positives,int)
+    
+
+        if skipDecayFactor is not None:
+            skipDecayFactor=checkarg(skipDecayFactor,float)
+            if skipDecayFactor<0:
+                self.skipProbsFunc=skipProbability.skipProbsDecay(skipDecayFactor,skipProbability.doArithDecay)
+            else:
+                self.skipProbsFunc=skipProbability.skipProbsDecay(skipDecayFactor,skipProbability.doGeoDecay)
+                
+            
+        if identifiersFilename is not None:
+            if ancestryFilename is not None:
+                print("specification of ancestry and indentifiers are incompatible")
+                print("(identifiers are in ancestry file anyway)")
+                sys.exit(1)
+            self.identifiers=getIdentifiers(identifiersFilename)
+            if self.identifiers is None:
+                print("failed to read identifiers\n")
+                usage()
+                sys.exit()
+    
+        if ancestryFilename is not None:
+            f=file(ancestryFilename,"r")
+            (self.identifiers,parents)=dagRead.read(f)
+            f.close()
+            self.thisDag=dag.dag(parents,len(parents))
+        else:
+            self.thisDag=dag.listDagObj
+    
+            
+        
+    
+        if self.likelihoodCalc.lower() in likelihoodSet:
+            self.likelihoodCalc=likelihoodSet[self.likelihoodCalc.lower()]
+        else:
+            print("Argument error: Unknown likelihood function\n")
+            usage()
+            sys.exit()
+            
+    
+        if self.logFileName is None and self.resume:
+            print("cannot resume: no logfile specified\n")
+            usage()
+            sys.exit
+    
+        if self.locations is None and self.identifiers is None:
+            print("Argument error: Must specify number of locations or file of identifiers\n")
+            usage()
+            sys.exit(1)
+        elif self.locations is None:
+            self.locations=len(self.identifiers)
+        elif self.identifiers is None:
+            self.identifiers=[repr(i) for i in range(self.locations)]
+        
+        if distPriorFilename is not None:
+            self.prior=getPrior(distPriorFilename,len(self.identifiers))
+        else:
+            self.prior=None
+    
+    
+        if self.certainty is None:
+            print("Argument error: Must specify termination certainty\n")
+            usage()
+            sys.exit(1)
+
+
+    def getDag(self):
+        return self.thisDag
+
+    def getSwitchScript(self):
+        return self.switchScript
+
+    def getLogFileName(self):
+        return self.logFileName
+  
+    def getLikelihoodCalc(self):
+        return self.likelihoodCalc
+
+    def getCertainty(self):
+        return self.certainty
+
+    def getPrior(self):
+        #if specified, prior is loaded in parseArgs(). Otherwise, uniform default is set here.
+        if self.prior is None:
+            return [ 1/float(self.locations) for i in range(self.locations)]
+        else:
+            return self.prior
+
+    def getPriorKnowlege(self):
+        return (self.positives,self.negatives)
+
+
+    def getIdentifiers(self):
+        return self.identifiers
+
+
+    def haveTestScript(self):
+        return self.testscript is not None
+
+    def getTestScript(self):
+        return self.testscript
+    
+    def doResume(self):
+        return self.resume
+
+    def getSkipProbsFunc(self):
+        return self.skipProbsFunc
+
+class runClass:
+    def __init__(self,identifiers,logger,switchScript):
+        self.identifiers=identifiers
+        self.logger=logger
+        self.switchScript=switchScript
+
+    def switch(self,where):
+        if self.switchScript is not None:
+            cmd=self.switchScript+" "+self.identifiers[where]
+            retval=os.system(cmd)
+            if os.WIFEXITED(retval):
+                code=os.WEXITSTATUS(retval)
+                if code!=0:
+                    raise "switch script (%s) exited with code %d \n" % (cmd,code)
+            else:
+                raise "switch script (%s) did not exit normally\n" % (cmd)
+        
+
+
+    def statusCallback(self,ended,mostLikely,mostLikelyProb,probs,counts):
+        if ended:
+            print("\nSearch complete. ",end="")
+        print("Most likely location is %s (probability %f)." % (self.identifiers[mostLikely],mostLikelyProb))
+
+
+# assumes unix return code from script
+class scriptTest(runClass):
+    def setscript(self,testscript):
+        self.script=testscript
+
+    def test(self,where):
+        self.switch(where)
+        cmd=self.script+" "+self.identifiers[where]
+        retval=os.system(cmd)
+
+
+        if os.WIFEXITED(retval):
+            code=os.WEXITSTATUS(retval)
+
+            # codes as in 'git bisect'
+            if code==0:
+                ret= False
+            elif code==125:
+                ret= None
+            elif code>0 and code<=127:
+                ret= True
+            else:
+                raise "unknown exit code from (%s) = %d\n" % (cmd,code)
+        else:
+            raise "test script (%s) did not exit normally\n" % (cmd)
+        
+        self.logger.log(where,ret)
+        return ret
+            
+            
+
+class manualTest(runClass):
+    def test(self,where):
+        self.switch(where)
+        print("Please test at location %s." % self.identifiers[where])
+        prompt="Target detected at %s? Y/N/S(kip) " % self.identifiers[where]
+
+        while True:
+            instr=raw_input(prompt)
+            if instr in ['Y','y']:
+                ret= True
+                break
+            elif instr in ['N','n']:
+                ret= False
+                break
+            elif instr in ['S','s','Skip','skip']:
+                ret= None
+                break
+
+        self.logger.log(where,ret)
+        return ret
+
+# parse command line
+args=Args()
+
+
+
+logger=testLog.logger(args.getLogFileName(),args.doResume()) #logger handles logFileName==None (ie, doesn't log)
+
+
+
+thisDag=args.getDag()
+prior=args.getPrior()
+identifiers=args.getIdentifiers()
+
+if args.haveTestScript():
+    interactor=scriptTest(identifiers,logger,args.getSwitchScript())
+    interactor.setscript(args.getTestScript())
+else:
+    interactor=manualTest(identifiers,logger,args.getSwitchScript())
+
+
+
+finder=BBChop(prior,
+              args.getCertainty(),
+              interactor,
+              args.getLikelihoodCalc(),
+              thisDag,
+              skipProbsFunc=args.getSkipProbsFunc())
+
+finder.addPriorKnowlege(args.getPriorKnowlege())
+
+if args.doResume():
+    resultsSoFar=logger.getResults()
+    for (location,observation) in resultsSoFar:
+        finder.addResult(location,observation)
+
+
+where=finder.search()
+logger.close()
+
+print("Number of tests at %s: %d of which %d detected" %(identifiers[where],sum(finder.counts[where]),finder.counts[where][1]))
+
+if len(thisDag.getParents(where))>0:
+    print("Number of tests at parents of %s:" % (identifiers[where]))
+    for p in thisDag.getParents(where):
+        print("\t At %s, %d of which %d detected" %(identifiers[p],sum(finder.counts[p]),finder.counts[p][1]))
+else:
+    print("Location %s has no parents" %(identifiers[where]))
+
