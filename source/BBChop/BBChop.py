@@ -15,11 +15,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-from listUtils import *
-from evidence import entropiesFast 
-import numberType
+from BBChop.listUtils import *
+from BBChop.evidence import entropiesFast 
+from BBChop import numberType
 import copy
-import skipProbability
+from BBChop import skipProbability
 #import plot
 
 debug=False
