@@ -102,13 +102,15 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
         (findProb,renyLksFoundTot,renyLksNFoundTot,evDProb,NfoundNorm)=lk[i]
         findProbs.append(findProb)
         #entropyFound:normalise
-        try: 
+        try:
             eFound=renyLksFoundTot/numberType.pow(evDProb,entropy.alpha)
 
             eFound=numberType.log(eFound)*renyiFactor
         except numberType.zeroDivisionError:
             eFound=0
         except numberType.overflowError:
+            eFound=0
+        except ValueError:
             eFound=0
 
 
@@ -119,6 +121,8 @@ def entropiesFast(counts,locPrior,likelihoodsObj,d):
         except numberType.zeroDivisionError:
             eNotFound=0
         except numberType.overflowError:
+            eNotFound=0
+        except ValueError:
             eNotFound=0
 
         # expected entropy after testing at i:
