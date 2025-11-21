@@ -8,7 +8,7 @@ setup(name='BBChop',
       author='Ealdwulf Wuffinga',
       url='https://github.com/Ealdwulf/BBChop',
       packages=['BBChop'],
-      package_dir = {'BBChop': 'BBChop/source'},
-      scripts = ['BBChop/source/bbchop'],
+      package_dir = {'BBChop': 'source/BBChop'},
+      scripts = ['source/bbchop'],
      )
 
