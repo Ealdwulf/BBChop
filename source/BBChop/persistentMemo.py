@@ -9,8 +9,8 @@ hash=hashlib.sha1
 
 #state
 memoObjs=[]
-memoDir="/home/ealdwulf/.memoObjs"
-if os.path.isdir(memoDir):
+memoDir=os.environ.get('BBCHOP_MEMODIR')
+if memoDir and os.path.isdir(memoDir):
     memoObjs=os.listdir(memoDir)
 else:
     memoObjs=None
