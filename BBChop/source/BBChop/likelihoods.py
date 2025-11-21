@@ -15,9 +15,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-import numberType
-from miscMath import Beta,fact,choice,powList
-from listUtils import *
+from BBChop import numberType
+from BBChop.miscMath import Beta,fact,choice,powList
+from BBChop.listUtils import *
 
 debug=False
 

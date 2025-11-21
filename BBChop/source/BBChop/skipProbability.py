@@ -1,5 +1,5 @@
-import numberType
-import listUtils
+from BBChop import numberType
+from BBChop import listUtils
 
 def skipProbsSimple(skipped,dag):
 

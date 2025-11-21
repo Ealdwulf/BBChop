@@ -16,11 +16,11 @@
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
-import entropy
-import numberType
-import dag
-from miscMath import powList
-from likelihoods import Impossible
+from BBChop import entropy
+from BBChop import numberType
+from BBChop import dag
+from BBChop.miscMath import powList
+from BBChop.likelihoods import Impossible
 # compute the probability distribution of bug locations
 
 # inputs:

@@ -16,7 +16,7 @@
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
 import operator
-import numberType
+from BBChop import numberType
 from functools import reduce
 # returns (index,min)
 def findMin(alist):

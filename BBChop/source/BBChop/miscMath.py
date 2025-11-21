@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
-import numberType
+from BBChop import numberType
 
 # standard beta function
 

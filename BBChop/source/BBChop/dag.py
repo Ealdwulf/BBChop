@@ -16,9 +16,9 @@
 #    along with BBChop.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from listUtils import listSub,prod,listComb,listCond
-import persistentMemo
-import cse
+from BBChop.listUtils import listSub,prod,listComb,listCond
+from BBChop import persistentMemo
+from BBChop import cse
 import sys
 # class for computing over directed acyclic graphs.
 # values are held outside the graph object, in lists
